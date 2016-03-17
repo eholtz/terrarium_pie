@@ -1,0 +1,8 @@
+# cron file to place in /etc/cron.d/
+
+*    * * * *  root  /root/script/fetch_current_humidity_temperature.sh
+*    * * * *  root  /root/script/fetch_gpio.sh
+*/10 * * * *  root  cd /var/www/html/rrd && ./graph.sh >/dev/null
+*/5  * * * *  root  cd /root/control && ./control_terr.sh > /dev/null
+*    * * * *  root  /root/script/fetch_pic.sh
+2    0 * * *  root  cd /var/www/html/rrd && ./new_index.sh

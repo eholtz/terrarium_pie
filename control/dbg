@@ -1,0 +1,170 @@
+++ date +%Y%m%d.%H%M%S
++ logfile=log/20160111.222137.runlog
++ date
+++ dirname control_terr.sh
++ cd .
++ source defs.sh
+++ soll_temptuer_tag_min=24
+++ soll_temptuer_tag_max=27
+++ soll_tempecke_tag_min=22
+++ soll_tempecke_tag_max=25
+++ soll_tempdecke_tag_min=30
+++ soll_tempdecke_tag_max=36
++++ ./sunrise_sunset rise
+++ tagstart_licht=1452497652
++++ ./sunrise_sunset set
+++ nachtstart_licht=1452536615
+++ tagstart_stein=1452504852
+++ nachtstart_stein=1452529415
+++ tagstart_ecke=1452501252
+++ nachtstart_ecke=1452533015
++++ date --date 12:00 +%s
+++ stein_start=1452513600
+++ stein_stop=1452517200
+++ regen_start=1452536015
+++ regen_stop=1452536315
++++ date +%s
+++ currtime=1452550897
++++ rrdtool lastupdate /root/rrd/ht-sensor-2
++++ tail -n 1
++++ cut -d . -f 1
++++ awk '{print $3}'
+++ tempecke=26
++++ rrdtool lastupdate /root/rrd/ht-sensor-3
++++ tail -n 1
++++ awk '{print $3}'
++++ cut -d . -f 1
+++ temptuer=23
++++ rrdtool lastupdate /root/rrd/ht-sensor-7
++++ tail -n 1
++++ awk '{print $3}'
++++ cut -d . -f 1
+++ tempdecke=24
++++ tail -n 1
++++ rrdtool lastupdate /root/rrd/ht-sensor-2
++++ cut -d . -f 1
++++ awk '{print $2}'
+++ feuchtecke=72
++++ rrdtool lastupdate /root/rrd/ht-sensor-3
++++ tail -n 1
++++ awk '{print $2}'
++++ cut -d . -f 1
+++ feuchttuer=71
++++ rrdtool lastupdate /root/rrd/ht-sensor-7
++++ awk '{print $2}'
++++ cut -d . -f 1
++++ tail -n 1
+++ feuchtdecke=73
+++ '[' 1452550897 -ge 1452536615 ']'
+++ nacht_licht=1
+++ '[' 1452550897 -ge 1452529415 ']'
+++ nacht_stein=1
+++ '[' 1452550897 -ge 1452533015 ']'
+++ nacht_ecke=1
+++ '[' 1452550897 -ge 1452513600 ']'
+++ '[' 1452550897 -le 1452517200 ']'
+++ '[' 1452550897 -ge 1452536015 ']'
+++ '[' 1452550897 -le 1452536315 ']'
++++ date -d @1452497652 +%c
+++ echo -e 'Tag Start\t1452497652\tMon Jan 11 07:34:12 2016'
++++ date -d @1452536615 +%c
+++ echo -e 'Tag Stop\t1452536615\tMon Jan 11 18:23:35 2016'
++++ date -d @1452501252 +%c
+++ echo -e 'Strt Ecklampe\t1452501252\tMon Jan 11 08:34:12 2016'
++++ date -d @1452533015 +%c
+++ echo -e 'Stop Ecklampe\t1452533015\tMon Jan 11 17:23:35 2016'
++++ date -d @1452504852 +%c
+++ echo -e 'Strt Steinlampe\t1452504852\tMon Jan 11 09:34:12 2016'
++++ date -d @1452529415 +%c
+++ echo -e 'Stop Steinlampe\t1452529415\tMon Jan 11 16:23:35 2016'
++++ date -d @1452536015 +%c
+++ echo -e 'Strt Regen\t1452536015\tMon Jan 11 18:13:35 2016'
++++ date -d @1452536315 +%c
+++ echo -e 'Stop Regen\t1452536315\tMon Jan 11 18:18:35 2016'
+++ echo
+++ echo Messwerte
+++ echo -e '\t\tDecke\tTuer\tEcke'
+++ echo -e 'Temperatur\t24\t23\t26'
+++ echo -e 'Luftfeuchte\t73\t71\t72'
+++ echo
+++ '[' 1 ']'
+++ echo 'Es ist Nacht'
+++ '[' ']'
+++ echo
+++ '[' 1 ']'
+++ echo 'Wärmelampe Ecke wird nicht geschaltet'
+++ '[' ']'
+++ '[' 1 ']'
+++ echo 'Wärmelampe Stein wird nicht geschaltet'
+++ '[' ']'
+++ echo
+++ '[' ']'
+++ '[' ']'
+++ echo
++ echo 'Starte control-scripte ...'
++ echo
++ source control_licht.sh
+++ onf=licht.turned.on
+++ off=licht.turned.off
+++ '[' 1 ']'
+++ turnoff 11 licht.turned.off
+++ '[' -z licht.turned.off ']'
++++ gpio -g read 11
+++ '[' 1 -ne 1 ']'
++ source control_waerme_ecke.sh
+++ onf=ecke.turned.on
+++ off=ecke.turned.off
++++ date +%s
+++ currtime=1452550897
+++ turnedon=1452550897
+++ turnedoff=0
+++ '[' -f ecke.turned.on ']'
++++ cat ecke.turned.on
+++ turnedon=1452503101
+++ '[' -f ecke.turned.off ']'
++++ cat ecke.turned.off
+++ turnedoff=1452505801
+++ echo 'Wärmelampe Ecke vor 47796 Sekunden angeschaltet.'
+++ echo 'Wärmelampe Ecke vor 45096 Sekunden ausgeschaltet.'
+++ '[' 1 ']'
+++ turnoff 13 ecke.turned.off
+++ '[' -z ecke.turned.off ']'
++++ gpio -g read 13
+++ '[' 1 -ne 1 ']'
++ source control_waerme_stein.sh
+++ onf=stein.turned.on
+++ off=stein.turned.off
++++ date +%s
+++ currtime=1452550897
+++ turnedon=1452550897
+++ turnedoff=0
+++ '[' -f stein.turned.on ']'
++++ cat stein.turned.on
+++ turnedon=1452528901
+++ '[' -f stein.turned.off ']'
++++ cat stein.turned.off
+++ turnedoff=1452529502
+++ echo 'Wärmelampe Stein vor 21996 Sekunden angeschaltet.'
+++ echo 'Wärmelampe Stein vor 21395 Sekunden ausgeschaltet.'
+++ '[' 1 ']'
+++ turnoff 12 stein.turned.off
+++ '[' -z stein.turned.off ']'
++++ gpio -g read 12
+++ '[' 1 -ne 1 ']'
++ source control_waerme_schlauch.sh
+++ onf=schlauch.turned.on
+++ off=schlauch.turned.off
++++ date +%s
+++ currtime=1452550897
+++ turnedon=1452550897
+++ turnedoff=0
+++ '[' -f schlauch.turned.on ']'
+++ '[' -f schlauch.turned.off ']'
+++ echo 'Wärmeschlauch vor 0 Sekunden angeschaltet.'
+++ echo 'Wärmeschlauch vor 1452550897 Sekunden ausgeschaltet.'
+++ '[' 23 -lt 21 ']'
+++ '[' 23 -gt 23 ']'
++ source control_regen.sh
+++ '[' ']'
+++ gpio -g write 15 1
++ date
