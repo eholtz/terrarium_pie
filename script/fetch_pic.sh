@@ -1,15 +1,21 @@
 #!/bin/bash
 
+cd /var/www/html/rrd/
+
 cd=$(date +%s)
 
 TZ="Europe/Berlin"
 export TZ
 
-if [ $cd -gt $(($(/root/bin/sunrise_sunset | awk '{print $1}') - 1800)) ]; then
-  if [ $cd -lt $(($(/root/bin/sunrise_sunset | awk '{print $2}') + 1800)) ]; then
-    /usr/bin/fswebcam -q --set "contrast"="12%" --set "gain"="100%" --set "backlight compensation"="100%" -r 640x480 /var/www/html/rrd/current.jpg
-    exit 0
-  fi
+RBF="/var/www/html/rrd/reboot"
+
+curl -m 55 -o /var/www/html/rrd/raw.jpg http://10.0.0.169:8080/photoaf.jpg
+if [ $? -eq 0 ]; then
+  rm $RBF
+  convert /var/www/html/rrd/raw.jpg -resize 50%x50% -fill white -gravity south -annotate +0+0 "Geckocam $(date +"%F %R %Z")" /var/www/html/rrd/rawt.jpg
+else
+  date > $RBF
+#  cp /root/dummy.jpg /var/www/html/rrd/rawt.jpg
 fi
-cp /root/dummy.jpg /var/www/html/rrd/current.jpg
+
 
