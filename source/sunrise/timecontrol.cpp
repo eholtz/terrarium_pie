@@ -5,6 +5,12 @@
 #include <stdio.h>
 #include <math.h>
 #include <time.h>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <stdio.h>
+
+using namespace std;
 
 double pi   = 3.141592653589793238463;
 double tpi  = 2 * pi;
@@ -87,6 +93,26 @@ void showhrmn(double dhr) {
   printf("%02d:%02d",hr,mn);
 };
 
+string hhmm(double dhr) {
+  int hr,mn;
+  char buffer[10];
+  hr=(int) dhr;
+  mn = (dhr - (double) hr)*60;
+  snprintf(buffer,sizeof(buffer),"%02d%02d",hr,mn);
+  return buffer;
+}
+
+void writelightsettings(double time,double lights, double riseordawn, double red,double green, double blue) {
+  char buffer[50];
+  ofstream filehandler;
+  string filename;
+  filename = hhmm(time);
+  snprintf(buffer,sizeof(buffer),"%1.0f %1.0f %1.0f %1.0f %1.0f",lights,riseordawn,red,green,blue);
+  filehandler.open(filename.c_str());
+  filehandler << buffer;
+  filehandler.close();
+}
+
 int main(void) {
   double y,m,day,h,latit,longit;
 
@@ -168,6 +194,7 @@ int main(void) {
   if (riset > 24.0) riset-= 24.0;
   if (settm > 24.0) settm-= 24.0;
 
+  // debug output
   /*
   printf("\n Sunrise and set\n");
   printf("yyyy-mm-dd    : %04.0f-%02.0f-%02.0f\n",y,m,day);
@@ -237,10 +264,12 @@ int main(void) {
     if (green<0) { green=0; }
     if (blue<0) { blue=0; }
 
-    printf("\n");
-    showhrmn(dayhour);
-    printf(" %1.0f %1.0f %1.0f %1.0f %1.0f",lights,riseordawn,red,green,blue);
-  
+    //printf("\n");
+    // this is the debug output
+    // showhrmn(dayhour);
+    // printf(" ");
+    //printf("%1.0f %1.0f %1.0f %1.0f %1.0f",lights,riseordawn,red,green,blue);
+    writelightsettings(dayhour,lights,riseordawn,red,green,blue);    
   }
   return 0;
 }
