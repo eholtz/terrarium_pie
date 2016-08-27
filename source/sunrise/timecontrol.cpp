@@ -93,6 +93,7 @@ void showhrmn(double dhr) {
   printf("%02d:%02d",hr,mn);
 };
 
+// Display decimal hours in hours and minutes, but return a string instead
 string hhmm(double dhr) {
   int hr,mn;
   char buffer[10];
@@ -102,16 +103,32 @@ string hhmm(double dhr) {
   return buffer;
 }
 
+// Write the given values into a file. This is rather hacky but does the job.
 void writelightsettings(double time,double lights, double riseordawn, double red,double green, double blue) {
   char buffer[50];
   ofstream filehandler;
   string filename;
   filename = hhmm(time);
-  snprintf(buffer,sizeof(buffer),"%1.0f %1.0f %1.0f %1.0f %1.0f",lights,riseordawn,red,green,blue);
+  snprintf(buffer,sizeof(buffer),"%1.0f %1.0f %1.0f %1.0f %1.0f\n",lights,riseordawn,red,green,blue);
   filehandler.open(filename.c_str());
   filehandler << buffer;
   filehandler.close();
 }
+
+void writerisedawntimes(double dawnstart, double daystart, double daystop, double duskstop, double adstart, double adstop) {
+  ofstream filehandler;
+  string filename;
+  filename = "times";
+  filehandler.open(filename.c_str());
+  filehandler << hhmm(dawnstart) << "\n";
+  filehandler << hhmm(daystart) << "\n";
+  filehandler << hhmm(daystop) << "\n";
+  filehandler << hhmm(duskstop) << "\n";
+  filehandler << hhmm(adstart) << "\n";
+  filehandler << hhmm(adstop) << "\n";
+  filehandler.close();
+}
+
 
 int main(void) {
   double y,m,day,h,latit,longit;
@@ -194,6 +211,7 @@ int main(void) {
   if (riset > 24.0) riset-= 24.0;
   if (settm > 24.0) settm-= 24.0;
 
+
   // debug output
   /*
   printf("\n Sunrise and set\n");
@@ -225,6 +243,8 @@ int main(void) {
   double gperc=1/riseduration_green*colorsteps;
   double bperc=1/riseduration_blue*colorsteps;
   double perc=0;
+
+  writerisedawntimes(twam,twam+riseduration_red,twpm-riseduration_red,twpm,riset,settm);
 
   for (dayhour=0; dayhour<24; dayhour+=minutestep) {
     // first check if the main lights should be turned on or off
