@@ -19,16 +19,20 @@ if [ $nacht_stein ] ; then
   turnoff 12 $off
   return 0
 else
-
+  echo "stein koennte angehen"
   # wenn der spot vor weniger als einer halben stunde ausgeschaltet wurde => nicht schalten
   if [ $(($currtime-$turnedoff)) -ge 1800 ] ; then
+    echo "cooldown nicht aktiv"
     if [ $stein_an ] ; then
+      echo "stein an"
       turnon 12 $onf
       return 0
-    elif [ $temptuer -ge $soll_temptuer_tag_max ] || [ $tempecke -ge $soll_temptuer_tag_max ] || [ $tempdecke -ge $soll_tempdecke_tag_max ]; then
+    elif [ $temptuer -ge $soll_temptuer_tag_max ] || [ $tempecke -ge $soll_tempecke_tag_max ] || [ $tempdecke -ge $soll_tempdecke_tag_max ]; then
+      echo "temperatur zu hoch => ausschalten"
       turnoff 12 $off
       return 0
-    elif [ $tempecke -lt $soll_temptuer_tag_min ] ; then
+    elif [ $tempdecke -lt $soll_tempdecke_tag_min ] ; then
+      echo "temperatur decke zu niedrig => einschalten"
       turnon 12 $onf
       return 0
     fi

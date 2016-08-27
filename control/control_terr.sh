@@ -17,13 +17,15 @@ source control_waerme_ecke.sh >> $logfile
 source control_waerme_stein.sh >> $logfile
 source control_waerme_schlauch.sh >> $logfile
 source control_brunnen.sh >> $logfile
-#source control_regen.sh >> $logfile
+source control_regen.sh >> $logfile
 #source control_nebel.sh >> $logfile
 
-echo "Checke Umlaufpumpe ..." >> $logfile
-turnon 23 "umlaufpumpe.turned.on"
+echo "Schalte Geckocamlader ein..." >> $logfile
+turnon 16 "geckocam.turned.on"
+#turnon 16 "geckocam.turned.off"
+
 
 date >> $logfile
 
-rm lastlog
-ln -s $logfile lastlog
+rm log/lastlog
+ln -s $(basename $logfile) log/lastlog

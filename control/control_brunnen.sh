@@ -3,8 +3,8 @@
 # gpio -g write 5 1 => brunnen ausschalten
 
 if [ $brunnen_an ] ; then
-	gpio -g write 5 0
+	turnon 5 "brunnen.turned.on"
 else
-	gpio -g write 5 1
+	turnoff 5 "brunnen.turend.off"
 fi
 
