@@ -24,6 +24,14 @@ soll_tempecke_tag_max=28
 soll_tempdecke_tag_min=34
 soll_tempdecke_tag_max=39
 
+######################### new light times
+# we may had a restart, then we have no control files
+# if no files are there => recreate
+[ ! -f /tmpfs/times ] && cd /tmpfs/ && /root/bin/timecontrol
+cd $dir
+#########################
+
+
 tagstart_licht=$(($(/root/bin/sunrise_sunset rise)))
 nachtstart_licht=$(($(/root/bin/sunrise_sunset set)))
 #tagstart_licht=1000
@@ -54,9 +62,11 @@ if [ ! -e "$regentodayfile" ] ; then
   else
     echo "0" > defs/regen
   fi
-  cd defs
-  /root/bin/calc_lightvalues &
+  ### new control files every day :-)
+  cd /tmpfs
+  /root/bin/timecontrol
 fi
+cd $dir
 
 regendef=$(cat defs/regen || echo 1000)
 

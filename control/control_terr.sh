@@ -1,6 +1,8 @@
 #!/bin/bash
 
 logfile="log/$(date +%Y%m%d.%H%M%S).runlog"
+cop=$(readlink -f $0)
+dir=$(dirname $cop)
 
 date > $logfile
 
@@ -8,6 +10,7 @@ cd $(dirname $0)
 
 source functions.sh >> $logfile
 source defs.sh >> $logfile
+cd $dir
 
 echo "Starte control-scripte ..." >> $logfile
 echo >> $logfile
