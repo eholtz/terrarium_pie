@@ -1,8 +1,9 @@
 #!/bin/bash
 
 source lichtdefs.sh
+source functions.sh
 
-ctf="/tmpfs/$(date +%H%m)"
+ctf="/tmpfs/$(date +%H%M)"
 read daylight ledstripe red green blue < $ctf
 
 [ $daylight -eq 1 ] && turnon 11 $onf
