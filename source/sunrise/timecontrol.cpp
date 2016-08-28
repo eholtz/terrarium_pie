@@ -109,7 +109,7 @@ void writelightsettings(double time,double lights, double riseordawn, double red
   ofstream filehandler;
   string filename;
   filename = hhmm(time);
-  snprintf(buffer,sizeof(buffer),"%1.0f %1.0f %1.0f %1.0f %1.0f\n",lights,riseordawn,red,green,blue);
+  snprintf(buffer,sizeof(buffer),"%1.0f %1.0f %1.5f %1.5f %1.5f\n",lights,riseordawn,red,green,blue);
   filehandler.open(filename.c_str());
   filehandler << buffer;
   filehandler.close();
@@ -231,7 +231,7 @@ int main(void) {
   */
 
   // most of those values could be int, though...
-  int colorsteps=256;
+  int colorsteps=1;
   double minutestep=1.0/60.0*1;
   double dayhour=0;
   double red=0,green=0,blue=0;
@@ -283,12 +283,8 @@ int main(void) {
     if (red<0) { red=0; }
     if (green<0) { green=0; }
     if (blue<0) { blue=0; }
-
-    //printf("\n");
-    // this is the debug output
-    // showhrmn(dayhour);
-    // printf(" ");
-    //printf("%1.0f %1.0f %1.0f %1.0f %1.0f",lights,riseordawn,red,green,blue);
+    
+    // now write the calculated values into a file
     writelightsettings(dayhour,lights,riseordawn,red,green,blue);    
   }
   return 0;
