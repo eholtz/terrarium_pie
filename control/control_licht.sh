@@ -1,18 +1,16 @@
 #!/bin/bash
 
-# gpio -g write 11 1 => licht ausschalten
-
 source lichtdefs.sh
 
-if [ $tag_licht ] && [ ! -f $sem ] ; then
-  # sunrise wurde noch nicht gestartet, wenn die semaphore fehlt
-  date > $sem
-  ./control_sunrise.sh &
-elif [ $nacht_licht ] && [ -f $sem ] ; then
-  rm $sem
-  ./control_sunset.sh &
-elif [ $tag_licht ] && [ $(ps -ef | grep control_sun | grep -v grep | wc -l) -eq 0 ]; then
-  # es ist tag, der sonnenaufgang ist vorbei
-  turnon 11 $onf
-fi
+ctf="/tmpfs/$(date +%H%m)"
+read daylight ledstripe red green blue < $ctf
+
+[ $daylight -eq 1 ] && turnon 11 $onf
+[ $daylight -eq 0 ] && turnoff 11 $off
+[ $ledstripe -eq 1 ] && turnon 26 $ledonf
+[ $ledstripe -eq 0 ] && turnoff 26 $ledoff
+echo "7=${red}" > /dev/pi-blaster
+echo "8=${green}" > /dev/pi-blaster
+echo "25=${blue}" > /dev/pi-blaster
+
 
