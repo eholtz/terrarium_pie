@@ -24,39 +24,41 @@ soll_tempecke_tag_max=28
 soll_tempdecke_tag_min=34
 soll_tempdecke_tag_max=39
 
-######################### new light times
 # we may had a restart, then we have no control files
 # if no files are there => recreate
 [ ! -f /tmpfs/times ] && cd /tmpfs/ && /root/bin/timecontrol
+if [ ! -f /tmpfs/times_epoch ]; then
+  read msh tlh nlh ash tah toh < /tmpfs/times
+  ms=$(date -d $msh +%s)
+  tl=$(date -d $tlh +%s)
+  nl=$(date -d $nlh +%s)
+  as=$(date -d $ash +%s)
+  ta=$(date -d $tah +%s)
+  to=$(date -d $toh +%s)
+  echo "$ms $tl $nl $as $ta $to" > /tmpfs/times_epoch
+fi
 cd $dir
-#########################
 
+# now we need the times when sun has risen und when the sun will set
+read morgendaemmerung_start tagstart_licht nachtstart_licht abenddaemmerung_stop tagstart tagstop < /tmpfs/times_epoch
 
-tagstart_licht=$(($(/root/bin/sunrise_sunset rise)))
-nachtstart_licht=$(($(/root/bin/sunrise_sunset set)))
-#tagstart_licht=1000
-#nachtstart_licht=2000
-
-brunnen_start=$(($tagstart_licht+1800))
-brunnen_stop=$(($nachtstart_licht-1800))
-brunnen_stop=0
-
+# calculate the times for switching other features
+# based on the day start
 tagstart_stein=$(($tagstart_licht+7200))
 nachtstart_stein=$(($nachtstart_licht-7200))
 
-#tagstart_ecke=$tagstart_licht
 tagstart_ecke=$(($tagstart_licht+3600))
 nachtstart_ecke=$(($nachtstart_licht-3600))
 
-#stein_start=$(date --date "12:00" +%s)
-#stein_stop=$(($stein_start+3600))
-stein_start=0
-stein_stop=0
+# check if today should be a rainy day or not
+# this is also the "once a day" control for
+# recalculating daystart/daystop
 
 regentodayfile="defs/regen_$(date +%F)"
 if [ ! -e "$regentodayfile" ] ; then
   rm -f defs/regen_*
   touch $regentodayfile
+  # it will rain once every three days
   if [ $(($(date +%s) / 86400 % 3)) -eq 0 ] ; then
     echo $(($RANDOM % ($nachstart_licht-$tagstart_licht) )) > defs/regen
   else
@@ -64,7 +66,7 @@ if [ ! -e "$regentodayfile" ] ; then
   fi
   ### new control files every day :-)
   cd /tmpfs
-  /root/bin/timecontrol
+  rm -f /tmpfs/times*
 fi
 cd $dir
 
@@ -78,13 +80,6 @@ else
   regen_stop=$regen_start
 fi
 
-#nebel_start=$(($nachtstart_licht+1800))
-#nebel_stop=$(($nebel_start+3600))
-nebel_start=0
-nebel_stop=0
-
-#currtime=$(TZ="Europe/Berlin" date +%H%M)
-#currutc=$(date +%H%M)
 currtime=$(date +%s)
 
 tempecke=$(rrdtool lastupdate /root/rrd/ht-sensor-2 | tail -n 1 | awk '{print $3}' | cut -d '.' -f 1)
@@ -121,20 +116,8 @@ else
   tag_ecke=1
 fi
 
-#if [ $currtime -ge $brunnen_start ] && [ $currtime -lt $brunnen_stop ] ; then
-#  brunnen_an=1
-#fi
-
-if [ $currtime -ge $stein_start ] && [ $currtime -le $stein_stop ] ; then
-  stein_an=1
-fi
-
 if [ $currtime -ge $regen_start ] && [ $currtime -le $regen_stop ] ; then
   regen_an=1
-fi
-
-if [ $currtime -ge $nebel_start ] && [ $currtime -le $nebel_stop ] ; then
-  nebel_an=1
 fi
 
 TZ="Europe/Berlin"
@@ -148,8 +131,6 @@ echo -e "Strt Steinlampe\t$tagstart_stein\t$(date -d @$tagstart_stein +%c)"
 echo -e "Stop Steinlampe\t$nachtstart_stein\t$(date -d @$nachtstart_stein +%c)"
 echo -e "Strt Regen\t$regen_start\t$(date -d @$regen_start +%c)"
 echo -e "Stop Regen\t$regen_stop\t$(date -d @$regen_stop +%c)"
-#echo -e "Strt Brunnen\t$brunnen_start\t$(date -d @$brunnen_start +%c)"
-#echo -e "Stop Brunnen\t$brunnen_stop\t$(date -d @$brunnen_stop +%c)"
 echo
 echo "Messwerte"
 echo -e "\t\tDecke\tTuer\tEcke"
@@ -166,7 +147,6 @@ echo
 echo
 [ $stein_an ] && echo "Wärmelampe Stein an"
 [ $regen_an ] && echo "Es regnet"
-# [ $brunnen_an ] && echo "Der Brunnen ist an"
 echo
 
 TZ="UTC"

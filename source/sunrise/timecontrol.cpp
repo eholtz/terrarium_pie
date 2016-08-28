@@ -120,11 +120,11 @@ void writerisedawntimes(double dawnstart, double daystart, double daystop, doubl
   string filename;
   filename = "times";
   filehandler.open(filename.c_str());
-  filehandler << hhmm(dawnstart) << "\n";
-  filehandler << hhmm(daystart) << "\n";
-  filehandler << hhmm(daystop) << "\n";
-  filehandler << hhmm(duskstop) << "\n";
-  filehandler << hhmm(adstart) << "\n";
+  filehandler << hhmm(dawnstart) << "\t";
+  filehandler << hhmm(daystart) << "\t";
+  filehandler << hhmm(daystop) << "\t";
+  filehandler << hhmm(duskstop) << "\t";
+  filehandler << hhmm(adstart) << "\t";
   filehandler << hhmm(adstop) << "\n";
   filehandler.close();
 }
