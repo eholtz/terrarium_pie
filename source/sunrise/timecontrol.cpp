@@ -1,6 +1,3 @@
-// Some part of the code is from 
-// jjlammi@netti.fi
-// http://www.sci.fi/~benefon/rscalc_cpp.html
 
 #include <stdio.h>
 #include <math.h>
@@ -12,88 +9,15 @@
 
 using namespace std;
 
-double pi   = 3.141592653589793238463;
-double tpi  = 2 * pi;
-double degs = 180.0/pi;
-double rads = pi/180.0;
+double pi    = 3.141592653589793238463;
+double todeg = 180.0/pi;
+double torad = pi/180.0;
+double mstep = 1.0/1440;
 
-double L,g,daylen;
-double SunDia = 0.53;  // Sunradius degrees
+double riseduration = mstep*90;
 
-double AirRefr = 34.0/60.0; // athmospheric refraction degrees //
 
-// Get the days to J2000
-// h is UT in decimal hours
-// FNday only works between 1901 to 2099 - see Meeus chapter 7
-
-double FNday (int y, int m, int d, float h) {
-  long int luku = - 7 * (y + (m + 9)/12)/4 + 275*m/9 + d;
-
-  // Typecasting needed for TClite on PC DOS at least, to avoid product overflow
-  luku+= (long int)y*367;
-
-  return (double)luku - 730531.5 + h/24.0;
-};
-
-// the function below returns an angle in the range
-// 0 to 2*pi
-
-double FNrange (double x) {
-  double b = x / tpi;
-  double a = tpi * (b - (long)(b));
-  if (a < 0) a = tpi + a;
-  return a;
-};
-
-// Calculating the hourangle
-double f0(double lat, double declin) {
-
-  double fo,dfo;
-  // Correction: different sign at S HS
-  dfo = rads*(0.5*SunDia + AirRefr); if (lat < 0.0) dfo = -dfo;
-  fo = tan(declin + dfo) * tan(lat*rads);
-
-  if (fo > 0.99999) fo=1.0; // to avoid overflow //
-  fo = asin(fo) + pi/2.0;
-  return fo;
-};
-
-// Calculating the hourangle for twilight times
-//
-double f1(double lat, double declin) {
-
-  double fi,df1;
-  // Correction: different sign at S HS
-  df1 = rads * 6.0; if (lat < 0.0) df1 = -df1;
-  fi = tan(declin + df1) * tan(lat*rads);
-
-  if (fi > 0.99999) fi=1.0; // to avoid overflow //
-  fi = asin(fi) + pi/2.0;
-  return fi;
-};
-
-// Find the ecliptic longitude of the Sun
-double FNsun (double d) {
-
-  // mean longitude of the Sun
-  L = FNrange(280.461 * rads + .9856474 * rads * d);
-
-  // mean anomaly of the Sun
-  g = FNrange(357.528 * rads + .9856003 * rads * d);
-
-  // Ecliptic longitude of the Sun
-  return FNrange(L + 1.915 * rads * sin(g) + .02 * rads * sin(2 * g));
-};
-
-// Display decimal hours in hours and minutes
-void showhrmn(double dhr) {
-  int hr,mn;
-  hr=(int) dhr;
-  mn = (dhr - (double) hr)*60;
-  printf("%02d:%02d",hr,mn);
-};
-
-// Display decimal hours in hours and minutes, but return a string instead
+// display decimal hours in hours and minutes, but return a string instead
 string hhmm(double dhr) {
   int hr,mn;
   char buffer[10];
@@ -103,172 +27,56 @@ string hhmm(double dhr) {
   return buffer;
 }
 
-// Write the given values into a file. This is rather hacky but does the job.
-void writelightsettings(double time,double lights, double riseordawn, double red,double green, double blue) {
-  char buffer[50];
+// write all the values to a file with the name ddmm
+void writelightsettings(double time, bool daylight, bool riseordawn, double red, double green, double blue) {
+  char buffer[50],filename[50];
   ofstream filehandler;
-  string filename;
-  filename = hhmm(time);
-  snprintf(buffer,sizeof(buffer),"%1.0f %1.0f %1.5f %1.5f %1.5f\n",lights,riseordawn,red,green,blue);
-  filehandler.open(filename.c_str());
+  int seconds = time*86400;
+  int hours   = seconds/3600;
+  int minutes = (seconds-(hours*3600))/60;
+
+  snprintf(filename,sizeof(filename),"%02d%02d",hours,minutes);
+  snprintf(buffer,sizeof(buffer),"%i %i %1.5f %1.5f %1.5f\n",daylight,riseordawn,red,green,blue);
+  
+  filehandler.open(filename);
   filehandler << buffer;
   filehandler.close();
 }
 
-void writerisedawntimes(double dawnstart, double daystart, double daystop, double duskstop, double adstart, double adstop) {
-  ofstream filehandler;
-  string filename;
-  filename = "times";
-  filehandler.open(filename.c_str());
-  filehandler << hhmm(dawnstart) << "\t";
-  filehandler << hhmm(daystart) << "\t";
-  filehandler << hhmm(daystop) << "\t";
-  filehandler << hhmm(duskstop) << "\t";
-  filehandler << hhmm(adstart) << "\t";
-  filehandler << hhmm(adstop) << "\n";
-  filehandler.close();
-}
+void stepthroughday(double dawn, double rise, double set, double dusk) {
+  bool lights;
+  bool riseordawn;
+  double riseduration_red   = riseduration;
+  double riseduration_green = riseduration*0.8;
+  double riseduration_blue  = riseduration*0.6;
+  double rperc = 1/riseduration_red;
+  double gperc = 1/riseduration_green;
+  double bperc = 1/riseduration_blue;
+  double red,green,blue;
 
-
-int main(void) {
-  double y,m,day,h,latit,longit;
-
-  time_t sekunnit;
-  struct tm *p;
-
-  // get the date and time from the user
-  // read system date and extract the year
-
-  /** First get current time **/
-  time(&sekunnit);
-
-  /** Next get localtime **/
-
-  p=localtime(&sekunnit);
-  // this is Y2K compliant algorithm
-  y = 1900 + p->tm_year;
-
-  m = p->tm_mon + 1;
-  day = p->tm_mday;
-  h = 12;
-
-  // magdeburg
-  // latit = 52.8;
-  
-  // madagascar
-  latit = 20.0;
-  // we leave longitude as it is, that will only affect time zone
-  longit= 11.37;
-  // we will go for utc
-  double tzone = 0;
-
-  double d = FNday(y, m, day, h);
-
-  // Use FNsun to find the ecliptic longitude of the
-  // Sun
-
-  double lambda = FNsun(d);
-
-  // Obliquity of the ecliptic
-
-  double obliq = 23.439 * rads - .0000004 * rads * d;
-
-  // Find the RA and DEC of the Sun
-
-  double alpha = atan2(cos(obliq) * sin(lambda), cos(lambda));
-  double delta = asin(sin(obliq) * sin(lambda));
-
-  // Find the Equation of Time in minutes
-  // Correction suggested by David Smith
-
-  double LL = L - alpha;
-  if (L < pi) LL += tpi;
-  double equation = 1440.0 * (1.0 - LL / tpi);
-
-
-  double ha = f0(latit,delta);
-
-  double hb = f1(latit,delta);
-  double twx = hb - ha;   // length of twilight in radians
-  twx = 12.0*twx/pi;      // length of twilight in degrees
-
-  // Conversion of angle to hours and minutes //
-  daylen = degs * ha / 7.5;
-  if (daylen<0.0001) {daylen = 0.0;}
-  // arctic winter   //
-
-  double riset = 12.0 - 12.0 * ha/pi + tzone - longit/15.0 + equation/60.0;
-  double settm = 12.0 + 12.0 * ha/pi + tzone - longit/15.0 + equation/60.0;
-
-  // shift by one hour - that's to have the day of the terrarium more
-  // aligned to the day of the owners
-  riset+=1;
-  settm+=1;
-
-  double twam = riset - twx;      // morning twilight begin
-  double twpm = settm + twx;      // evening twilight end
-
-  if (riset > 24.0) riset-= 24.0;
-  if (settm > 24.0) settm-= 24.0;
-
-
-  // debug output
-  /*
-  printf("\n Sunrise and set\n");
-  printf("yyyy-mm-dd    : %04.0f-%02.0f-%02.0f\n",y,m,day);
-  printf("Daylength     : ");
-  showhrmn(daylen);
-  printf(" hours\n");
-  printf("Begin twilight: ");
-  showhrmn(twam);
-  printf("\nSunrise       : ");
-  showhrmn(riset);
-  printf("\nSunset        : ");
-  showhrmn(settm);
-  printf("\nEnd twiglight : ");
-  showhrmn(twpm);
-  printf("\n");
-  */
-
-  // most of those values could be int, though...
-  int colorsteps=1;
-  double minutestep=1.0/60.0*1;
-  double dayhour=0;
-  double red=0,green=0,blue=0;
-  double lights=0,riseordawn=0;
-  double riseduration_red=1.5;
-  double riseduration_green=riseduration_red*0.8;
-  double riseduration_blue=riseduration_red*0.6;
-  double rperc=1/riseduration_red*colorsteps;
-  double gperc=1/riseduration_green*colorsteps;
-  double bperc=1/riseduration_blue*colorsteps;
-  double perc=0;
-
-  writerisedawntimes(twam,twam+riseduration_red,twpm-riseduration_red,twpm,riset,settm);
-
-  for (dayhour=0; dayhour<24; dayhour+=minutestep) {
+  for (double dayhour=0; dayhour<=1; dayhour+=mstep) {
     // first check if the main lights should be turned on or off
-    if ((dayhour<(twam+riseduration_red)) || (dayhour>(twpm-riseduration_red))) {
+    if ((dayhour<rise) || (dayhour>set)) {
       lights=0;
     } else {
       lights=1;
     }
 
     // now check if we are in sunrise
-    if ((dayhour>=twam) && (dayhour<(twam+riseduration_red))) {
-        riseordawn=1;
-        red=(dayhour-twam)*rperc;
-        if (dayhour>=(twam+(riseduration_red-riseduration_green))) {
-          green=(dayhour-(twam+(riseduration_red-riseduration_green)))*gperc;
-        }
-        if (dayhour>=(twam+(riseduration_red-riseduration_blue))) {
-          blue=(dayhour-(twam+(riseduration_red-riseduration_blue)))*bperc;
-        }
-    } else if ((dayhour>=(twpm-riseduration_red)) && (dayhour<=twpm)) {
+    if ((dayhour>=dawn) && (dayhour<rise)) {
+      riseordawn=1;
+      red=(dayhour-dawn)*rperc;
+      if (dayhour>=(dawn+(riseduration_red-riseduration_green))) {
+        green=(dayhour-(dawn+(riseduration_red-riseduration_green)))*gperc;
+      }
+      if (dayhour>=(dawn+(riseduration_red-riseduration_blue))) {
+        blue=(dayhour-(dawn+(riseduration_red-riseduration_blue)))*bperc;
+      }
+    } else if ((dayhour>set) && (dayhour<=dusk)) {
       // or are we in sunset
-      red=colorsteps-((dayhour-(twpm-riseduration_red))*rperc);
-      green=colorsteps-((dayhour-(twpm-riseduration_red))*gperc);
-      blue=colorsteps-((dayhour-(twpm-riseduration_red))*bperc);
+      red=1-((dayhour-(dusk-riseduration_red))*rperc);
+      green=1-((dayhour-(dusk-riseduration_red))*gperc);
+      blue=1-((dayhour-(dusk-riseduration_red))*bperc);
       riseordawn=1;
     } else {
       // or no twilight
@@ -277,16 +85,103 @@ int main(void) {
     }
 
     // failsafe if calculations took a wrong direction somewhere
-    if (red>colorsteps) { red=colorsteps; }
-    if (green>colorsteps) { green=colorsteps; }
-    if (blue>colorsteps) { blue=colorsteps; }
+    if (red>1) { red=1; }
+    if (green>1) { green=1; }
+    if (blue>1) { blue=1; }
     if (red<0) { red=0; }
     if (green<0) { green=0; }
     if (blue<0) { blue=0; }
-    
+
     // now write the calculated values into a file
-    writelightsettings(dayhour,lights,riseordawn,red,green,blue);    
+    writelightsettings(dayhour,lights,riseordawn,red,green,blue);
   }
-  return 0;
 }
 
+int main() {
+  time_t t = time(0);
+  struct tm * current_time = localtime(&t);
+  // longitude west of magdeburg
+  double low=-11.6322;
+  // latitude of magdeburg
+  double lam=52.1243;
+
+  // calculate julian day number based on https://de.wikipedia.org/wiki/Julianisches_Datum
+  int m=current_time->tm_mon+1;
+  int y=current_time->tm_year+1900;
+  if (m<=2) { m+=12; y--; } 
+  int d=current_time->tm_mday;
+  int a=floor((y)/100);
+  double b = 2-a+floor(a/4);
+  long jd = floor(365.25*(y+4716))+floor(30.6001*(m+1))+d+b-1524.5;
+  
+  // calculation of sunrise based on https://en.wikipedia.org/wiki/Sunrise_equation
+  double n = jd-2451545+0.0008;
+  double js = low/360+n;
+  double ma = fmod((357.5291+0.98560028*js),360);
+  double c = 1.9148*sin(ma*torad)+0.02*sin(2*ma*torad)+0.0003*sin(3*ma*torad);
+  double l = fmod((ma+c+180+102.9372),360);
+  double jt = 2451545+js+0.0053*sin(ma*torad)-0.0069*sin(2*l*torad);
+  double de = asin(sin(l*torad)*sin(23.44*torad))*todeg;
+  double w = acos((sin(-0.83*torad)-sin(lam*torad)*sin(de*torad))/(cos(lam*torad)*cos(de*torad)))*todeg;
+  // i'm not really sure, but i have to switch the set und rise times to
+  // get the correct hour of day. as i'm only interested in the time 
+  // becaus i have the date anyway, i think that's acceptable.
+  double jset = jt-w/360;
+  double jrise = jt+w/360;
+
+  // i'll only need the hours and minutes
+
+  double sunrise = (jrise-floor(jrise));
+  double sunset  = (jset-floor(jset));
+
+  // now we have the correct times. we will shift this to align
+  // the day of the terrarium more to the day of the owners and
+  // also i want to have a nice dawn and dusk.
+  // the dawn and dusk will spread evenly before and after
+  // the actal sunrise
+
+  double lightson  = sunrise+riseduration/2;
+  double lightsoff = sunset-riseduration/2;
+  double dawn      = sunrise-riseduration/2;
+  double dusk      = sunset+riseduration/2;
+
+  /*
+  cout << dawn << endl;
+  cout << lightson << endl;
+  cout << lightsoff << endl;
+  cout << dusk << endl;
+  cout << sunrise << endl;
+  cout << sunset << endl;
+  */
+
+  stepthroughday(dawn,lightson,lightsoff,dusk);
+
+  ofstream filehandler;
+  string filename= "times";
+  int sec,min,hou;
+  char buffer[50];
+  filehandler.open(filename.c_str());
+  sec=dawn*86400;hou=sec/3600;min=(sec-(hou*3600))/60;
+  snprintf(buffer,sizeof(buffer),"%02d%02d",hou,min);
+  filehandler << buffer << "\t";
+  sec=lightson*86400;hou=sec/3600;min=(sec-(hou*3600))/60;
+  snprintf(buffer,sizeof(buffer),"%02d%02d",hou,min);
+  filehandler << buffer << "\t";
+  sec=lightsoff*86400;hou=sec/3600;min=(sec-(hou*3600))/60;
+  snprintf(buffer,sizeof(buffer),"%02d%02d",hou,min);
+  filehandler << buffer << "\t";
+  sec=dusk*86400;hou=sec/3600;min=(sec-(hou*3600))/60;
+  snprintf(buffer,sizeof(buffer),"%02d%02d",hou,min);
+  filehandler << buffer << "\t";
+  sec=sunrise*86400;hou=sec/3600;min=(sec-(hou*3600))/60;
+  snprintf(buffer,sizeof(buffer),"%02d%02d",hou,min);
+  filehandler << buffer << "\t";
+  sec=sunset*86400;hou=sec/3600;min=(sec-(hou*3600))/60;
+  snprintf(buffer,sizeof(buffer),"%02d%02d",hou,min);
+  filehandler << buffer << "\t";
+  filehandler << endl;
+  filehandler.close();
+
+  return 0;
+}
+  
