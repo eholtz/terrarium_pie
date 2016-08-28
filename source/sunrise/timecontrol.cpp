@@ -200,10 +200,10 @@ int main(void) {
   double riset = 12.0 - 12.0 * ha/pi + tzone - longit/15.0 + equation/60.0;
   double settm = 12.0 + 12.0 * ha/pi + tzone - longit/15.0 + equation/60.0;
 
-  // shift by two hours - that's to have the day of the terrarium more
+  // shift by one hour - that's to have the day of the terrarium more
   // aligned to the day of the owners
-  riset+=2;
-  settm+=2;
+  riset+=1;
+  settm+=1;
 
   double twam = riset - twx;      // morning twilight begin
   double twpm = settm + twx;      // evening twilight end
