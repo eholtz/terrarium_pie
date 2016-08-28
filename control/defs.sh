@@ -169,3 +169,5 @@ echo
 # [ $brunnen_an ] && echo "Der Brunnen ist an"
 echo
 
+TZ="UTC"
+export TZ
