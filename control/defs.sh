@@ -74,7 +74,7 @@ regendef=$(cat defs/regen || echo 1000)
 
 if [ $regendef -ne 0 ] ; then
   regen_start=$(($tagstart_licht+$regendef))
-  regen_stop=$(($regen_start+300))
+  regen_stop=$(($regen_start+600))
 else
   regen_start=0
   regen_stop=$regen_start
