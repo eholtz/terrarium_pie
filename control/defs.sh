@@ -44,8 +44,8 @@ read morgendaemmerung_start tagstart_licht nachtstart_licht abenddaemmerung_stop
 
 # calculate the times for switching other features
 # based on the day start
-tagstart_stein=$(($tagstart_licht+7200))
-nachtstart_stein=$(($nachtstart_licht-7200))
+tagstart_stein=$(($tagstart_licht+1200))
+nachtstart_stein=$(($nachtstart_licht-1200))
 
 tagstart_ecke=$(($tagstart_licht+3600))
 nachtstart_ecke=$(($nachtstart_licht-3600))
@@ -119,6 +119,14 @@ fi
 if [ $currtime -ge $regen_start ] && [ $currtime -le $regen_stop ] ; then
   regen_an=1
 fi
+
+stein_an=0
+if [ $tag_stein ] ; then
+  if [ $(($(date +%H)%2)) -eq 0 ] ; then
+    stein_an=1
+  fi
+fi
+
 
 TZ="Europe/Berlin"
 export TZ
