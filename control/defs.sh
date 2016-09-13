@@ -120,13 +120,9 @@ if [ $currtime -ge $regen_start ] && [ $currtime -le $regen_stop ] ; then
   regen_an=1
 fi
 
-stein_an=0
-if [ $tag_stein ] ; then
-  if [ $(($(date +%H)%2)) -eq 0 ] ; then
-    stein_an=1
-  fi
+if [ $(($(date +%H)%2)) -eq 0 ] && [ $tag_stein ] ; then
+  stein_an=1
 fi
-
 
 TZ="Europe/Berlin"
 export TZ
