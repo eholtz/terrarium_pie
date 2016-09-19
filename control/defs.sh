@@ -116,7 +116,7 @@ else
   tag_ecke=1
 fi
 
-if [ $currtime -ge $regen_start ] && [ $currtime -le $regen_stop ] ; then
+if [ $currtime -ge $regen_start ] && [ $currtime -le $regen_stop ] && [ $(($currtime % 3)) -ne 0 ] ; then
   regen_an=1
 fi
 
