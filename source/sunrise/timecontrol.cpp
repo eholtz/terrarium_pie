@@ -83,6 +83,11 @@ void stepthroughday(double dawn, double rise, double set, double dusk) {
       red=green=blue=0;
     }
 
+    // turn on the led driver soon enough, so there is no dark moment
+    if (dayhour+mstep>set) {
+      riseordawn=1;
+    }
+
     // failsafe if calculations took a wrong direction somewhere
     if (red>1) { red=1; }
     if (green>1) { green=1; }
