@@ -16,6 +16,11 @@ double mstep = 1.0/1440;
 
 double riseduration = mstep*90;
 
+struct julian {
+  double jrise;
+  double jset;
+};
+
 // display decimal hours in hours and minutes, but return a string instead
 string hhmm(double dhr) {
   int hr,mn;
@@ -101,15 +106,15 @@ void stepthroughday(double dawn, double rise, double set, double dusk) {
   }
 }
 
-int main() {
-  time_t t = time(0);
+struct julian calcjtimes(time_t t) {
+  
   struct tm * current_time = localtime(&t);
   // longitude west of magdeburg
   double low=-11.6322;
   // latitude of magdeburg
-  // double lam=52.1243;
+  double lam=52.1243;
   // latitude of madagascar (if it were on northern hemishpere)
-  double lam=22.5;
+  // double lam=22.5;
 
   // calculate julian day number based on https://de.wikipedia.org/wiki/Julianisches_Datum
   int m=current_time->tm_mon+1;
@@ -118,38 +123,75 @@ int main() {
   int d=current_time->tm_mday;
   int a=floor((y)/100);
   double b = 2-a+floor(a/4);
-  long jd = floor(365.25*(y+4716))+floor(30.6001*(m+1))+d+b-1524.5;
-  
+  double jd = floor(365.25*(y+4716))+floor(30.6001*(m+1))+d+b-1524.5;
+ 
   // calculation of sunrise based on https://en.wikipedia.org/wiki/Sunrise_equation
+  // current julian day
   double n = jd-2451545+0.0008;
+  // mean solar noon
   double js = low/360+n;
+  // mean anomaly
   double ma = fmod((357.5291+0.98560028*js),360);
+  // equation of the center
   double c = 1.9148*sin(ma*torad)+0.02*sin(2*ma*torad)+0.0003*sin(3*ma*torad);
+  // ecliptic longitude
   double l = fmod((ma+c+180+102.9372),360);
-  double jt = 2451545+js+0.0053*sin(ma*torad)-0.0069*sin(2*l*torad);
+  // solar transit - it seems they have forgotten the 2451545.5 on the wikipedia page. or i did not understand correctly.
+  double jt = 2451545.5+js+0.0053*sin(ma*torad)-0.0069*sin(2*l*torad);
+  // declination of the sun
   double de = asin(sin(l*torad)*sin(23.44*torad))*todeg;
+  // hour angle
   double w = acos((sin(-0.83*torad)-sin(lam*torad)*sin(de*torad))/(cos(lam*torad)*cos(de*torad)))*todeg;
-  // i'm not really sure, but i have to switch the set und rise times to
-  // get the correct hour of day. as i'm only interested in the time 
-  // becaus i have the date anyway, i think that's acceptable.
-  double jset = jt-w/360;
-  double jrise = jt+w/360;
+  
+  double jset = jt+w/360;
+  double jrise = jt-w/360;
 
+  struct julian cjt = { jrise, jset };
+
+  return cjt;
+}
+
+int main() {
+  time_t t = time(0);
+  struct julian jt;
+ 
+  // better float precision for debugging purposes
+  std::cout.setf(std::ios_base::fixed, std::ios_base::floatfield);
+  std::cout.precision(10);
+
+  // debugging purposes
+  /*
+  struct tm * timeinfo;
+  timeinfo = gmtime(&t);
+
+  for (int x=1;x<31;x++) {
+    timeinfo->tm_mday=x;
+    cout << x << " ";
+    jt = calcjtimes(mktime(timeinfo));
+    std::cout << jt.jrise << " " << jt.jset << endl;
+  }
+  */
+
+  jt = calcjtimes(t);
+  
   // now we have the correct times. first skip the acutal
-  // date because i only need the times. they will be shifted so
+  // date because i only need the times. as julian day .5 is 
+  // 00:00 gmt we have to subtract .5 so we get the correct
+  // values for hour, minute and second.
+  // they will be shifted so
   // the day of the terrarium matches the day of the owners and
   // also i want to have a nice dawn and dusk.
   // the dawn and dusk will spread evenly before and after
   // the actal sunrise
 
-  double sunrise = (jrise-floor(jrise))+mstep*60;
-  double sunset  = (jset-floor(jset))+mstep*60;
+  double sunrise = (jt.jrise-.5-floor(jt.jrise-.5))+mstep*60;
+  double sunset  = (jt.jset-.5-floor(jt.jset-.5))+mstep*60;
   double lightson  = sunrise+riseduration/2;
   double lightsoff = sunset-riseduration/2;
   double dawn      = sunrise-riseduration/2;
   double dusk      = sunset+riseduration/2;
 
-  /*
+  /* 
   cout << dawn << endl;
   cout << lightson << endl;
   cout << lightsoff << endl;
