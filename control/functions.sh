@@ -1,25 +1,11 @@
 #### functions
 
 function getonv() {
-  case $1 in 
-    5|6|26)
-      echo 1
-      ;;
-    *)
-      echo 0
-      ;;
-  esac
+  echo 1
 }
 
 function getoffv() {
-  case $1 in 
-    5|6|26)
-      echo 0
-      ;;
-    *)
-      echo 1
-      ;;
-  esac
+  echo 0
 }
 
 
