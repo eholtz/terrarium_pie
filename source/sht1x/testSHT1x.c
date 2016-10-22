@@ -97,7 +97,7 @@ int printTempAndHumidity(void)
 
   //Print the Temperature to the console
   //printf("Temperature: %0.2f%cC\n",temp_val.f,0x00B0);
-  printf("%0.2f\n",temp_val.f);
+  printf("%0.2f\t",temp_val.f);
 
   //Print the Humidity to the console
   //printf("Humidity: %0.2f%%\n",humi_val.f);
