@@ -35,6 +35,7 @@ if [ ! -f /tmpfs/times_epoch ]; then
   ta=$(date -d $tah +%s)
   to=$(date -d $toh +%s)
   echo "$ms $tl $nl $as $ta $to" > /tmpfs/times_epoch
+  cd /var/www/html/rrd && ./new_index.sh
 fi
 cd $dir
 
