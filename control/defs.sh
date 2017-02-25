@@ -18,11 +18,21 @@
 soll_temptuer_tag_min=25
 soll_temptuer_tag_max=27
 
+#sommer
 soll_tempecke_tag_min=25
+
+#winter
+soll_tempecke_tag_min=22
 soll_tempecke_tag_max=28
 
+
 soll_tempdecke_tag_min=34
+
+#sommer
 soll_tempdecke_tag_max=39
+
+#winter
+soll_tempdecke_tag_max=36
 
 # we may had a restart, then we have no control files
 # if no files are there => recreate
@@ -116,13 +126,14 @@ else
   tag_ecke=1
 fi
 
-if [ $currtime -ge $regen_start ] && [ $currtime -le $regen_stop ] && [ $(($currtime % 3)) -ne 0 ] ; then
+if [ $currtime -ge $regen_start ] && [ $currtime -le $regen_stop ] && [ $((($currtime/60) % 3)) -ne 0 ] ; then
   regen_an=1
 fi
 
-if [ $(($(date +%H)%2)) -eq 0 ] && [ $tag_stein ] ; then
-  stein_an=1
-fi
+# temporary solution for heating quarantine box
+#if [ $(($(date +%H)%2)) -eq 0 ] && [ $tag_stein ] ; then
+#  stein_an=1
+#fi
 
 TZ="Europe/Berlin"
 export TZ
