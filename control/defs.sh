@@ -68,9 +68,10 @@ regentodayfile="defs/regen_$(date +%F)"
 if [ ! -e "$regentodayfile" ] ; then
   rm -f defs/regen_*
   touch $regentodayfile
-  # it will rain once every three days
-  if [ $(($(date +%s) / 86400 % 3)) -eq 0 ] ; then
+  # it will rain about once every four days
+  if [ $(($RANDOM / 86400 % 4)) -eq 0 ] ; then
     echo $(($RANDOM % ($nachstart_licht-$tagstart_licht) )) > defs/regen
+    echo $((($RANDOM % 15)*60+300)) > defs/regen_dauer
   else
     echo "0" > defs/regen
   fi
@@ -81,10 +82,11 @@ fi
 cd $dir
 
 regendef=$(cat defs/regen || echo 1000)
+regen_dauer=$(cat defs/regen_dauer || echo 600)
 
 if [ $regendef -ne 0 ] ; then
   regen_start=$(($tagstart_licht+$regendef))
-  regen_stop=$(($regen_start+600))
+  regen_stop=$(($regen_start+$regen_dauer))
 else
   regen_start=0
   regen_stop=$regen_start
