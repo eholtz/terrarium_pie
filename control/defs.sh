@@ -17,10 +17,12 @@ pin_7=$pin_regenmaschine
 pin_8=14
 
 scriptdir="$(readlink -f $(dirname $0))"
-definitionsdir="/tmp/"
+definitionsdir="/tmp/terracontrol/"
 timesfile="${definitionsdir}/times"
 epochfile="${definitionsdir}/times_epoch"
 timesbinary="$scriptdir/../bin/timecontrol"
+
+mkdir -p ${definitionsdir}
 
 # set language to german
 # only for nicer date output
@@ -43,18 +45,28 @@ if [ ! -f $epochfile ]; then
   ta=$(date -d $tah +%s)
   to=$(date -d $toh +%s)
   echo "$ms $tl $nl $as $ta $to" > $epochfile
+  
+  # set all write pins to write mode
+  gpio mode $pin_1 out
+  gpio mode $pin_2 out
+  gpio mode $pin_3 out
+  gpio mode $pin_4 out
+  gpio mode $pin_5 out
+  gpio mode $pin_6 out
+  gpio mode $pin_7 out
+  gpio mode $pin_8 out
+
+  # zero all pins
+  gpio write $pin_1 0
+  gpio write $pin_2 0
+  gpio write $pin_3 0
+  gpio write $pin_4 0
+  gpio write $pin_5 0
+  gpio write $pin_6 0
+  gpio write $pin_7 0
+  gpio write $pin_8 0
 fi
 cd $scriptdir
-
-# set all write pins to write mode
-gpio mode $pin_1 out
-gpio mode $pin_2 out
-gpio mode $pin_3 out
-gpio mode $pin_4 out
-gpio mode $pin_5 out
-gpio mode $pin_6 out
-gpio mode $pin_7 out
-gpio mode $pin_8 out
 
 # now we need the times when sun has risen und when the sun will set
 read morgendaemmerung_start tagstart_licht nachtstart_licht abenddaemmerung_stop tagstart tagstop < $epochfile
@@ -85,6 +97,7 @@ if [ ! -e "$regentodayfile" ] ; then
     echo $((($RANDOM % 15)*60+300)) > $regendauerfile
   else
     echo "0" > $regenzeitfile
+    echo "0" > $regendauerfile
   fi
 fi
 cd $scriptdir
