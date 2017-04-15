@@ -1,0 +1,48 @@
+those are my pins
+
+
+
+
+  sht11 power                  3.3v power        1
+  relais 0-1 / daylight tubes  bcm 2 / wpi 8     3
+  relais 0-2 / 12v trafo       bcm 3 / wpi 9     5
+  relais 0-3 / spot stone      bcm 4 / wpi 7     7
+                               ground            9
+  relais 0-4 / spot corner     bcm 17 / wpi 0   11
+  relais 0-5 / heating coil    bcm 27 / wpi 2   13
+  relais 0-6 / camera power    bcm 22 / wpi 3   15
+                               3.3v power       17
+  relais 0-7 / rain machine    bcm 10 / wpi 12  19
+  relais 0-8 /                 bcm 9 / wpi 13   21
+                               bcm 11 / wpi 14  23
+                               ground           25
+                               bcm 0 / wpi 30   27
+                               bcm 5 / wpi 21   29
+                               bcm 6 / wpi 22   31
+                               bcm 13 / wpi 23  33
+                               bcm 19 / wpi 24  35
+                               bcm 26 / wpi 25  37
+                               ground           39
+
+
+  2  5v power          relais card power
+  4  5v power
+  6  ground
+  8  bcm 14 / wpi 15   rgb led red
+  10 bcm 15 / wpi 16   rgb led green
+  12 bcm 18 / wpi 1    rgb led blue
+  14 ground
+  16 bcm 23 / wpi 4   
+  18 bcm 24 / wpi 5   
+  20 ground
+  22 bcm 25 / wpi 6    sht11 ceiling
+  24 bcm 8 / wpi 10    sht11 corner
+  26 bcm 7 / wpi 11    sht11 t.b.d.
+  28 bcm 1 / wpi 31    sht11 t.b.d.
+  30 ground
+  32 bcm 12 / wpi 26   sht11 clock
+  34 ground
+  36 bcm 16 / wpi 27
+  38 bcm 20 / wpi 28
+  40 bcm 21 / wpi 29
+
