@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# check time
+if [ $(cat /var/lib/chrony/chrony.drift | awk '{print $2}' | cut -d '.' -f 1) -gt 60 ]; then
+  systemctl restart chrony
+fi
+
 logfile="log/$(date +%Y%m%d.%H%M%S).runlog"
 cop=$(readlink -f $0)
 dir=$(dirname $cop)
