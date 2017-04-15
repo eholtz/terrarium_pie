@@ -27,7 +27,7 @@ This is a derivative work based on
 #define SHT1x_DELAY delayMicroseconds(2)
 
 // Define the Raspberry Pi GPIO Pins for the SHT1x
-#define RPI_GPIO_SHT1x_SCK RPI_V2_GPIO_P1_03
+#define RPI_GPIO_SHT1x_SCK RPI_V2_GPIO_P1_32
 #define RPI_GPIO_SHT1x_DATA RPI_V2_GPIO_P1_##MYPIN##
 
 /* Macros to toggle port state of SCK line. */
