@@ -1,0 +1,4 @@
+source/bcm*
+source/pi-blaster*
+bin/*
+control/log
