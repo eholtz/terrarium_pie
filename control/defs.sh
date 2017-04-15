@@ -69,12 +69,13 @@ if [ ! -e "$regentodayfile" ] ; then
   rm -f defs/regen_*
   touch $regentodayfile
   # it will rain about once every four days
-  if [ $(($RANDOM / 86400 % 4)) -eq 0 ] ; then
+  if [ $(($RANDOM % 4)) -eq 0 ] ; then
     echo $(($RANDOM % ($nachstart_licht-$tagstart_licht) )) > defs/regen
     echo $((($RANDOM % 15)*60+300)) > defs/regen_dauer
   else
     echo "0" > defs/regen
   fi
+#  echo "0" > defs/regen
   ### new control files every day :-)
   cd /tmpfs
   rm -f /tmpfs/times*
@@ -92,6 +93,8 @@ else
   regen_stop=$regen_start
 fi
 
+TZ="UTC"
+export TZ
 currtime=$(date +%s)
 
 tempecke=$(rrdtool lastupdate /root/rrd/ht-sensor-2 | tail -n 1 | awk '{print $3}' | cut -d '.' -f 1)
@@ -102,10 +105,11 @@ feuchtecke=$(rrdtool lastupdate /root/rrd/ht-sensor-2 | tail -n 1 | awk '{print 
 feuchttuer=$(rrdtool lastupdate /root/rrd/ht-sensor-3 | tail -n 1 | awk '{print $2}' | cut -d '.' -f 1)
 feuchtdecke=$(rrdtool lastupdate /root/rrd/ht-sensor-7 | tail -n 1 | awk '{print $2}' | cut -d '.' -f 1)
 
+echo "currtime $currtime"
 # den waermelampen zeit zum abkühlen vor dem regen geben
 # sonst können sie schon mal kaputt gehen
 # und auch danach noch ein bisschen zeit zum wasser ablaufen lassen geben
-if [ $regen_start -ne 0 ] && [ $(date +%s) -gt $(($regen_start-1600)) ] && [ $(date +%s) -lt $(($regen_stop+1600)) ]; then
+if [ $regen_start -ne 0 ] && [ $currtime -gt $(($regen_start-1600)) ] && [ $currtime -lt $(($regen_stop+1600)) ]; then
   nacht_stein=1
   nacht_ecke=1
 fi
