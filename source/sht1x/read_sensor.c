@@ -32,7 +32,7 @@ GPIO Pins can be changed in the Defines of RPi_SHT1x.h
 
 #include <bcm2835.h>
 #include <stdio.h>
-#include "RPi_SHT1x.h"
+#include "RPi_SHT1x_##MYPIN##.h"
 
 int printTempAndHumidity(void)
 {
