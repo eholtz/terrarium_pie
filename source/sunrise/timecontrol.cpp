@@ -67,7 +67,7 @@ void stepthroughday(double dawn, double rise, double set, double dusk) {
     }
 
     // now check if we are in sunrise
-    if ((dayhour>=dawn) && (dayhour<rise)) {
+    if ((dayhour>=dawn) && (dayhour<=(rise+mstep))) {
       riseordawn=1;
       red=(dayhour-dawn)*rperc;
       if (dayhour>=(dawn+(riseduration_red-riseduration_green))) {
@@ -76,7 +76,7 @@ void stepthroughday(double dawn, double rise, double set, double dusk) {
       if (dayhour>=(dawn+(riseduration_red-riseduration_blue))) {
         blue=(dayhour-(dawn+(riseduration_red-riseduration_blue)))*bperc;
       }
-    } else if ((dayhour>set) && (dayhour<=dusk)) {
+    } else if ((dayhour>=(set-mstep)) && (dayhour<=dusk)) {
       // or are we in sunset
       red=1-((dayhour-(dusk-riseduration_red))*rperc);
       green=1-((dayhour-(dusk-riseduration_red))*gperc);
@@ -86,11 +86,6 @@ void stepthroughday(double dawn, double rise, double set, double dusk) {
       // or no twilight
       riseordawn=0;
       red=green=blue=0;
-    }
-
-    // turn on the led driver soon enough, so there is no dark moment
-    if (dayhour+mstep>set) {
-      riseordawn=1;
     }
 
     // failsafe if calculations took a wrong direction somewhere

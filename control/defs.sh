@@ -18,11 +18,21 @@
 soll_temptuer_tag_min=25
 soll_temptuer_tag_max=27
 
+#sommer
 soll_tempecke_tag_min=25
+
+#winter
+soll_tempecke_tag_min=22
 soll_tempecke_tag_max=28
 
+
 soll_tempdecke_tag_min=34
+
+#sommer
 soll_tempdecke_tag_max=39
+
+#winter
+soll_tempdecke_tag_max=36
 
 # we may had a restart, then we have no control files
 # if no files are there => recreate
@@ -58,12 +68,14 @@ regentodayfile="defs/regen_$(date +%F)"
 if [ ! -e "$regentodayfile" ] ; then
   rm -f defs/regen_*
   touch $regentodayfile
-  # it will rain once every three days
-  if [ $(($(date +%s) / 86400 % 3)) -eq 0 ] ; then
+  # it will rain about once every four days
+  if [ $(($RANDOM % 4)) -eq 0 ] ; then
     echo $(($RANDOM % ($nachstart_licht-$tagstart_licht) )) > defs/regen
+    echo $((($RANDOM % 15)*60+300)) > defs/regen_dauer
   else
     echo "0" > defs/regen
   fi
+#  echo "0" > defs/regen
   ### new control files every day :-)
   cd /tmpfs
   rm -f /tmpfs/times*
@@ -71,15 +83,18 @@ fi
 cd $dir
 
 regendef=$(cat defs/regen || echo 1000)
+regen_dauer=$(cat defs/regen_dauer || echo 600)
 
 if [ $regendef -ne 0 ] ; then
   regen_start=$(($tagstart_licht+$regendef))
-  regen_stop=$(($regen_start+600))
+  regen_stop=$(($regen_start+$regen_dauer))
 else
   regen_start=0
   regen_stop=$regen_start
 fi
 
+TZ="UTC"
+export TZ
 currtime=$(date +%s)
 
 tempecke=$(rrdtool lastupdate /root/rrd/ht-sensor-2 | tail -n 1 | awk '{print $3}' | cut -d '.' -f 1)
@@ -90,10 +105,11 @@ feuchtecke=$(rrdtool lastupdate /root/rrd/ht-sensor-2 | tail -n 1 | awk '{print 
 feuchttuer=$(rrdtool lastupdate /root/rrd/ht-sensor-3 | tail -n 1 | awk '{print $2}' | cut -d '.' -f 1)
 feuchtdecke=$(rrdtool lastupdate /root/rrd/ht-sensor-7 | tail -n 1 | awk '{print $2}' | cut -d '.' -f 1)
 
+echo "currtime $currtime"
 # den waermelampen zeit zum abkühlen vor dem regen geben
 # sonst können sie schon mal kaputt gehen
 # und auch danach noch ein bisschen zeit zum wasser ablaufen lassen geben
-if [ $regen_start -ne 0 ] && [ $(date +%s) -gt $(($regen_start-1600)) ] && [ $(date +%s) -lt $(($regen_stop+1600)) ]; then
+if [ $regen_start -ne 0 ] && [ $currtime -gt $(($regen_start-1600)) ] && [ $currtime -lt $(($regen_stop+1600)) ]; then
   nacht_stein=1
   nacht_ecke=1
 fi
@@ -116,13 +132,14 @@ else
   tag_ecke=1
 fi
 
-if [ $currtime -ge $regen_start ] && [ $currtime -le $regen_stop ] && [ $(($currtime % 3)) -ne 0 ] ; then
+if [ $currtime -ge $regen_start ] && [ $currtime -le $regen_stop ] && [ $((($currtime/60) % 3)) -ne 0 ] ; then
   regen_an=1
 fi
 
-if [ $(($(date +%H)%2)) -eq 0 ] && [ $tag_stein ] ; then
-  stein_an=1
-fi
+# temporary solution for heating quarantine box
+#if [ $(($(date +%H)%2)) -eq 0 ] && [ $tag_stein ] ; then
+#  stein_an=1
+#fi
 
 TZ="Europe/Berlin"
 export TZ
