@@ -30,7 +30,7 @@ sensors[1]=22
 sensors[2]=24
 sensoridname[1]="Ecke"
 sensoridname[2]="Deckel"
-for i in "${sensoridname[@]}" ; do
+for i in "${!sensoridname[@]}" ; do
   sensornameid[${sensoridname[$i]}]=$i
 done
 
@@ -53,7 +53,7 @@ relaispinname[5]="Heizschlauch"
 relaispinname[6]="Kameraladegerät"
 relaispinname[7]="Regenmaschine"
 relaispinname[8]="Undefined"
-for i in "${relaispinname[@]}" ; do
+for i in "${!relaispinname[@]}" ; do
   relaisnamepin[${relaispinname[$i]}]=$i
 done
 
