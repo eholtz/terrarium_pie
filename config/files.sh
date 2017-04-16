@@ -3,7 +3,7 @@
 # this is meant to be sourced for every script that runs
 # for the control of the terrarium
 
-dir_tmp="/tmpfs/terra_control/"
+dir_tmp="/tmp/terra_control/"
 dir_base=$(dirname $(readlink -f $(dirname $0)))
 dir_config="$dir_base/config/"
 dir_script="$dir_base/script/"
