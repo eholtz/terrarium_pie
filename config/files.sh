@@ -33,11 +33,6 @@ init=0
 [ ! -d $dir_volatile ] && mkdir -p $dir_volatile
 [ ! -d $dir_html ] && mkdir -p $dir_html
 
-if [ $init -eq 1 ] ; then
-  echo "$(date) re-init " > $dir_log/_init
-  source $dir_script/init.sh
-fi
-
 rrd_gpio="$dir_rrd/gpio"
 rrd_sensor="$dir_rrd/sensor"
 
@@ -75,4 +70,9 @@ relaispinname[8]="Undefined"
 for i in "${!relaispinname[@]}" ; do
   relaisnamepin[${relaispinname[$i]}]=$i
 done
+
+if [ $init -eq 1 ] ; then
+  echo "$(date) re-init " > $dir_log/_init
+  source $dir_script/init.sh
+fi
 
