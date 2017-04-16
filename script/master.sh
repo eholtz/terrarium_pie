@@ -19,7 +19,7 @@ echo "logfile is $runlog " >> $runlog
 
 if [ $init -eq 1 ] ; then
   echo "Seems we have been rebooted or whatever, so init things ..." >> $runlog
-  $dir_script/init.sh &>> $runlog
+  source $dir_script/init.sh &>> $runlog
 fi
 
 echo "Read the daylight times ... " >> $runlog
