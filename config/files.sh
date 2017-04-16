@@ -14,6 +14,10 @@ dir_volatile="$dir_tmp/volatile/"
 dir_html="/var/www/terrarium/"
 dir_backup="/mnt/nfs/terrarium/"
 
+soll_temp_ecke_tag_min=24
+soll_temp_ecke_tag_max=26
+soll_temp_deckel_tag_max=40
+
 init=0
 [ ! -d $dir_tmp ] && mkdir -p $dir_tmp && init=1
 [ ! -d $dir_log ] && mkdir -p $dir_log && init=1
@@ -37,6 +41,7 @@ done
 declare -A relaispins
 declare -A relaispinname
 declare -A relaisnamepin
+declare -A switchrelais
 relaispins[1]=8
 relaispins[2]=9
 relaispins[3]=7
