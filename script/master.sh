@@ -20,8 +20,10 @@ if [ $init -eq 1 ] ; then
   $dir_script/init.sh &>> $runlog
 fi
 
-echo "Check if we have startup or rolled over day ... " >> $runlog
-source $dir_script/controltime.sh &>> $runlog
+echo "Read the daylight times ... " >> $runlog
+source $dir_script/times_daylight.sh &>> $runlog
 
-echo "Control rain ... " >> $runlog
-source $dir_script/rain.sh &>> $runlog
+echo "Read the rain times ... " >> $runlog
+source $dir_script/times_rain.sh &>> $runlog
+
+
