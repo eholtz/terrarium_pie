@@ -14,6 +14,7 @@ dir_volatile="$dir_tmp/volatile/"
 dir_html="/var/www/terrarium/"
 dir_backup="/mnt/nfs/terrarium/"
 
+init=0
 [ ! -d $dir_tmp ] && mkdir -p $dir_tmp && init=1
 [ ! -d $dir_log ] && mkdir -p $dir_log && init=1
 [ ! -d $dir_rrd ] && mkdir -p $dir_rrd && init=1

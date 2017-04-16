@@ -4,5 +4,5 @@
 
 source "$(readlink -f $(dirname $0)/../config/files.sh)"
 source $dir_script/read_sensors.sh
-
+source $dir_script/read_gpio.sh
 

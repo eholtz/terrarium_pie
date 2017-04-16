@@ -6,4 +6,3 @@ source "$(readlink -f $(dirname $0)/../config/files.sh)"
 
 [ $init -eq 1 ] && $dir_script/init.sh
 
-
