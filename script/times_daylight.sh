@@ -30,10 +30,10 @@ fi
 # now we need the times when sun has risen und when the sun will set
 read epoch_morgendaemmerung_start epoch_tageslicht_start epoch_tageslicht_stop epoch_abenddaemmerung_stop epoch_sonnenaufgang epoch_sonnenuntergang < $file_epoch
 
-echo "Start Morgendaemmerung $epoch_morgendaemmerung_start $(date -d @$epoch_morgendaemmerung_start +"%T %Z")"
-echo "Start Tageslicht       $epoch_tageslicht_start $(date -d @$epoch_tageslicht_start +"%T %Z")"
-echo "Stop Tageslicht        $epoch_tageslicht_stop $(date -d @$epoch_tageslicht_stop +"%T %Z")"
-echo "Stop Abenddaemmerung   $epoch_abenddaemmerung_stop $(date -d @$epoch_abenddaemmerung_stop +"%T %Z")"
-echo "Sonnenaufgang          $epoch_sonnenaufgang $(date -d @$epoch_sonnenaufgang +"%T %Z")"
-echo "Sonnenuntergang        $epoch_sonnenuntergang $(date -d @$epoch_sonnenuntergang +"%T %Z")"
+echo "Start Morgendaemmerung $epoch_morgendaemmerung_start / $(date -d @$epoch_morgendaemmerung_start +"%T %Z")"
+echo "Start Tageslicht       $epoch_tageslicht_start / $(date -d @$epoch_tageslicht_start +"%T %Z")"
+echo "Stop Tageslicht        $epoch_tageslicht_stop / $(date -d @$epoch_tageslicht_stop +"%T %Z")"
+echo "Stop Abenddaemmerung   $epoch_abenddaemmerung_stop / $(date -d @$epoch_abenddaemmerung_stop +"%T %Z")"
+echo "Sonnenaufgang          $epoch_sonnenaufgang / $(date -d @$epoch_sonnenaufgang +"%T %Z")"
+echo "Sonnenuntergang        $epoch_sonnenuntergang / $(date -d @$epoch_sonnenuntergang +"%T %Z")"
 

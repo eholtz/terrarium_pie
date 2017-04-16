@@ -14,7 +14,9 @@ source "$(readlink -f $(dirname $0)/../config/files.sh)"
 
 runlog="$dir_log/runlog.$(date +%Y%m%d.%H%M%S)"
 
-echo "Starting up @ $(date +%Y%m%d.%H%M%S) ... " > $runlog
+echo "Starting up @ $(date +"%T %Z") ... " > $runlog
+echo "logfile is $runlog " >> $runlog
+
 if [ $init -eq 1 ] ; then
   echo "Seems we have been rebooted or whatever, so init things ..." >> $runlog
   $dir_script/init.sh &>> $runlog
