@@ -1,6 +1,6 @@
 #!/bin/bash
 
-for i in "${rrd_sensors[@]}" ; do
+for i in "${sensors[@]}" ; do
   sensorfile="${rrd_sensor}_$i"
   if [ ! -f $sensorfile ] ; then
     # every minute
@@ -11,8 +11,8 @@ for i in "${rrd_sensors[@]}" ; do
   fi
 
   # now that we are sure to have the sensor file read the values
-  timeout 10 "$dir_bin/read_sensor_$i" > $dir_tmp/data_sensor_$i
+  timeout 10 "$dir_bin/read_sensor_$i" | tr '\n' ' ' > $dir_tmp/data_sensor_$i
   read temp humi < $dir_tmp/data_sensor_$i
-  timeout 10 rrdtool update $sensorfile
+  timeout 10 rrdtool update $sensorfile N:$temp:$humi
 
 done

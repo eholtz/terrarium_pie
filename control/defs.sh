@@ -24,10 +24,6 @@ timesbinary="$scriptdir/../bin/timecontrol"
 
 mkdir -p ${definitionsdir}
 
-# set language to german
-# only for nicer date output
-export LANG=de_DE.UTF-8
-
 # be sure to be in utc mode
 TZ="UTC"
 export TZ
