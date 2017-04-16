@@ -53,11 +53,18 @@ for i in 1_12h 2_7d 3_4w 4_1y ; do
   bash $dir_volatile/rrd_execute
   cat $dir_volatile/rrd_execute
 
+  for r in "${!relaispins[@]}" ; do
+    DEF="DEF:v${r}=${rrd_gpio}:pin${relaispins[$r]}:AVERAGE"
+    GRAPH="AREA:v${r}:#aaffaa:${relaispinname[$r]}:skipscale"
+    echo "timeout 10 rrdtool graph $dir_html/${i}_gpio_${r}.png --lazy --end $lastvalue --start end-${span} --width 1024 --height 30 --title \"${relaispinname[$r]}\" $DEF $GRAPH" > $dir_volatile/rrd_execute
+    bash $dir_volatile/rrd_execute
+    cat cat $dir_volatile/rrd_execute
+  done
 done
 
-echo "<head><title></title><body>" > $dir_html/index.html
+echo "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><title>$(hostname)</title></head><body>" > $dir_html/index.html
 for image in $(find $dir_html -maxdepth 1 -iname "*.png" | sort -u) ; do
-echo "<br /><img src=\"$(basename $image)\">" >> $dir_html/index.html
+  echo "<br /><img src=\"$(basename $image)\">" >> $dir_html/index.html
 done 
 echo "</body></html>" >> $dir_html/index.html
 
