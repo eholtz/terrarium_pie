@@ -3,6 +3,10 @@
 # this is meant to be sourced for every script that runs
 # for the control of the terrarium
 
+# be sure to be in utc mode
+TZ="UTC"
+export TZ
+
 dir_tmp="/tmp/terra_control/"
 dir_base=$(dirname $(readlink -f $(dirname $0)))
 dir_config="$dir_base/config/"
@@ -17,6 +21,8 @@ dir_backup="/mnt/nfs/terrarium/"
 soll_temp_ecke_tag_min=24
 soll_temp_ecke_tag_max=26
 soll_temp_deckel_tag_max=40
+
+epoch_current=$(date +%s)
 
 init=0
 [ ! -d $dir_tmp ] && mkdir -p $dir_tmp && init=1

@@ -37,6 +37,9 @@ source $dir_script/control_light.sh &>> $runlog
 echo "Control the spots ... " >> $runlog
 source $dir_script/control_spots.sh &>> $runlog
 
+echo "Control the rain ... " >> $runlog
+source $dir_script/control_rain.sh &>> $runlog
+
 echo "Switching the relais pins ..." >> $runlog
 source $dir_script/switch_relais.sh &>> $runlog
 
