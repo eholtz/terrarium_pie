@@ -6,7 +6,7 @@
 dir_tmp="/tmpfs/terra_control/"
 ddir_base=$(dirname $(readlink -f $(dirname $0)))
 dir_config="$dir_base/config/"
-dir_script="$dir_bsae/script/"
+dir_script="$dir_base/script/"
 dir_bin="$dir_base/bin/"
 dir_log="$dir_tmp/log/"
 dir_rrd="$dir_tmp/rrd/"
