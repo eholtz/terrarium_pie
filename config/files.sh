@@ -21,6 +21,8 @@ dir_backup="/mnt/nfs/terrarium/"
 soll_temp_ecke_tag_min=24
 soll_temp_ecke_tag_max=26
 soll_temp_deckel_tag_max=40
+soll_temp_ecke_nacht_min=20
+soll_temp_ecke_nacht_max=21
 
 epoch_current=$(date +%s)
 
