@@ -4,7 +4,7 @@
 # for the control of the terrarium
 
 dir_tmp="/tmpfs/terra_control/"
-ddir_base=$(dirname $(readlink -f $(dirname $0)))
+dir_base=$(dirname $(readlink -f $(dirname $0)))
 dir_config="$dir_base/config/"
 dir_script="$dir_base/script/"
 dir_bin="$dir_base/bin/"
