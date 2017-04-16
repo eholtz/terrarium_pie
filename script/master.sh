@@ -29,5 +29,7 @@ source $dir_script/times_rain.sh &>> $runlog
 echo "Read the sensors ... " >> $runlog
 source $dir_script/last_sensor_data.sh &>> $runlog
 
+echo "Control the light ... " >> $runlog
+
 [ -f $dir_log/lastlog ] && rm $dir_log/lastlog
 ln -s $runlog $dir_log/lastlog
