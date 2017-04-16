@@ -17,11 +17,6 @@ runlog="$dir_log/runlog.$(date +%Y%m%d.%H%M%S)"
 echo "Starting up @ $(date +"%T %Z") ... " > $runlog
 echo "logfile is $runlog " >> $runlog
 
-if [ $init -eq 1 ] ; then
-  echo "Seems we have been rebooted or whatever, so init things ..." >> $runlog
-  source $dir_script/init.sh &>> $runlog
-fi
-
 echo "Read the daylight times ... " >> $runlog
 source $dir_script/times_daylight.sh &>> $runlog
 

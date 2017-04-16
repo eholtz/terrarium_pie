@@ -15,7 +15,7 @@ dir_bin="$dir_base/bin/"
 dir_log="$dir_tmp/log/"
 dir_rrd="$dir_tmp/rrd/"
 dir_volatile="$dir_tmp/volatile/"
-dir_html="/var/www/terrarium/"
+dir_html="/mnt/nfs/html/"
 dir_backup="/mnt/nfs/terrarium/"
 
 soll_temp_ecke_tag_min=24
@@ -31,6 +31,12 @@ init=0
 [ ! -d $dir_log ] && mkdir -p $dir_log && init=1
 [ ! -d $dir_rrd ] && mkdir -p $dir_rrd && init=1
 [ ! -d $dir_volatile ] && mkdir -p $dir_volatile
+[ ! -d $dir_html ] && mkdir -p $dir_html
+
+if [ $init -eq 1 ] ; then
+  echo "$(date) re-init " > $dir_log/_init
+  source $dir_script/init.sh
+fi
 
 rrd_gpio="$dir_rrd/gpio"
 rrd_sensor="$dir_rrd/sensor"
