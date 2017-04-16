@@ -23,4 +23,7 @@ read epoch_rain_start < $file_raintoday
 read epoch_rain_duration < $file_rainduration
 epoch_rain_stop=$(($epoch_rain_start+$epoch_rain_duration))
 
+echo "Start Regen $epoch_rain_start $(date -d @$epoch_rain_start +%c)"
+echo "Stop Regen  $epoch_rain_stop $(date -d @$epoch_rain_stop +%c)"
+echo "Regendauer  $epoch_rain_duration"
 
