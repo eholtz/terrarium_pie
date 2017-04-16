@@ -8,7 +8,10 @@ file_raintoday="$dir_volatile/rain_$(date +%Y%m%d)"
 file_rainduration="$dir_volatile/rain_duration"
 
 if [ ! -f $file_raintoday ] ; then
+  echo "File $file_raintoday => assuming new day or reboot"
+  echo "Cleaning up ..."
   rm -f $dir_volatile/rain* &> /dev/null
+  echo "Calculating if it will rain ..."
   # it will rain about once every four days
   if [ $(($RANDOM % 4)) -eq 0 ] ; then
     echo $((($RANDOM % ($epoch_tageslicht_stop-$epoch_tageslicht_start))+$epoch_tageslicht_start)) > $file_raintoday
