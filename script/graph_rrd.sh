@@ -35,7 +35,7 @@ for i in 1_12h 2_7d 3_4w 4_1y ; do
     GRAPH="$GRAPH LINE1:v${s}#${tmpcol[$counter]}:\"${sensoridname[$s]}\t\" GPRINT:v${s}l:\"%2.1lf %%\l\""
     counter=$(($counter+1))
   done
-  echo "timeout 10 rrdtool graph $dir_html/${i}_temperature.png --lazy --end $lastvalue --start end-${span} --width 1024 --title \"Temperatur - ${span}\" $DEF $VDEF $GRAPH" > $dir_volatile/rrd_execute
+  echo "timeout 10 rrdtool graph $dir_html/${i}_temperature.png --lazy --end $lastvalue --start end-${span} --tabwidth 60 --width 1024 --title \"Temperatur - ${span}\" $DEF $VDEF $GRAPH" > $dir_volatile/rrd_execute
   bash $dir_volatile/rrd_execute
   cat $dir_volatile/rrd_execute
 
@@ -49,16 +49,17 @@ for i in 1_12h 2_7d 3_4w 4_1y ; do
     GRAPH="$GRAPH LINE1:v${s}#${humcol[$counter]}:\"${sensoridname[$s]}\t\" GPRINT:v${s}l:\"%2.1lf %%\l\""
     counter=$(($counter+1))
   done
-  echo "timeout 10 rrdtool graph $dir_html/${i}_humidity.png --lazy --end $lastvalue --start end-${span} --width 1024 --title \"Luftfeuchtigkeit - ${span}\" $DEF $VDEF $GRAPH" > $dir_volatile/rrd_execute
+  echo "timeout 10 rrdtool graph $dir_html/${i}_humidity.png --lazy --end $lastvalue --start end-${span} --tabwidth 60 --width 1024 --title \"Luftfeuchtigkeit - ${span}\" $DEF $VDEF $GRAPH" > $dir_volatile/rrd_execute
   bash $dir_volatile/rrd_execute
   cat $dir_volatile/rrd_execute
 
   for r in "${!relaispins[@]}" ; do
     DEF="DEF:v${r}=${rrd_gpio}:pin${relaispins[$r]}:AVERAGE"
-    GRAPH="AREA:v${r}:#aaffaa:${relaispinname[$r]}:skipscale"
-    echo "timeout 10 rrdtool graph $dir_html/${i}_gpio_${r}.png --lazy --end $lastvalue --start end-${span} --width 1024 --height 30 --title \"${relaispinname[$r]}\" $DEF $GRAPH" > $dir_volatile/rrd_execute
+    GRAPH="AREA:v${r}#aaffaa"
+#    GRAPH="AREA:v${r}#aaffaa:${relaispinname[$r]}:skipscale"
+    echo "timeout 10 rrdtool graph $dir_html/${i}_z_gpio_${r}.png --lazy --end $lastvalue --start end-${span} --width 1024 --height 30 --lower-limit 0 --upper-limit 1 --rigid --y-grid 1:3 --title \"${relaispinname[$r]}\" $DEF $GRAPH" > $dir_volatile/rrd_execute
     bash $dir_volatile/rrd_execute
-    cat cat $dir_volatile/rrd_execute
+    cat $dir_volatile/rrd_execute
   done
 done
 
@@ -67,4 +68,5 @@ for image in $(find $dir_html -maxdepth 1 -iname "*.png" | sort -u) ; do
   echo "<br /><img src=\"$(basename $image)\">" >> $dir_html/index.html
 done 
 echo "</body></html>" >> $dir_html/index.html
+
 
