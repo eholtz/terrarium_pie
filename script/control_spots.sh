@@ -9,7 +9,7 @@ if [ $(date +%H) -eq 12 ] ; then
   switchrelais[${relaisnamepin["Spot Stein"]}]=1
 else
   echo "It's not noon => turn Spot Stein off"
-  witchrelais[${relaisnamepin["Spot Stein"]}]=0
+  switchrelais[${relaisnamepin["Spot Stein"]}]=0
 fi
 
 if [ ${temperature[${sensornameid["Ecke"]}]} -lt $soll_temp_ecke_tag_min ]; then
