@@ -24,14 +24,19 @@ rrd_gpio="$dir_rrd/gpio"
 rrd_sensor="$dir_rrd/sensor"
 
 declare -A sensors
-declare -A sensornames
+declare -A sensoridname
+declare -A sensornameid
 sensors[1]=22
 sensors[2]=24
-sensorname[1]="Ecke"
-sensorname[2]="Deckel"
+sensoridname[1]="Ecke"
+sensoridname[2]="Deckel"
+for i in "${sensoridname[@]}" ; do
+  sensornameid[${sensoridname[$i]}]=$i
+done
 
 declare -A relaispins
-declare -A relaispinnames
+declare -A relaispinname
+declare -A relaisnamepin
 relaispins[1]=8
 relaispins[2]=9
 relaispins[3]=7
@@ -40,13 +45,15 @@ relaispins[5]=2
 relaispins[6]=3
 relaispins[7]=12
 relaispins[8]=14
-relaispinnames[1]="Tageslicht"
-relaispinnames[2]="12V Trafo"
-relaispinnames[3]="Spot Stein"
-relaispinnames[4]="Spot Ecke"
-relaispinnames[5]="Heizschlauch"
-relaispinnames[6]="Kameraladegerät"
-relaispinnames[7]="Regenmaschine"
-relaispinnames[8]="Undefined"
-
+relaispinname[1]="Tageslicht"
+relaispinname[2]="12V Trafo"
+relaispinname[3]="Spot Stein"
+relaispinname[4]="Spot Ecke"
+relaispinname[5]="Heizschlauch"
+relaispinname[6]="Kameraladegerät"
+relaispinname[7]="Regenmaschine"
+relaispinname[8]="Undefined"
+for i in "${relaispinname[@]}" ; do
+  relaisnamepin[${relaispinname[$i]}]=$i
+done
 

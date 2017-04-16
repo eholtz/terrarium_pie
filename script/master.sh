@@ -26,5 +26,8 @@ source $dir_script/times_daylight.sh &>> $runlog
 echo "Read the rain times ... " >> $runlog
 source $dir_script/times_rain.sh &>> $runlog
 
+echo "Read the sensors ... " >> $runlog
+source $dir_script/last_sensor_data.sh &>> $runlog
+
 [ -f $dir_log/lastlog ] && rm $dir_log/lastlog
 ln -s $runlog $dir_log/lastlog
