@@ -24,6 +24,6 @@ if [ ! -f $file_today ] ; then
 fi
 
 # now we need the times when sun has risen und when the sun will set
-read epoch_morgendaemmerung_start epoch_tageslicht_start epoch_tageslicht_stop abenddaemmerung_stop epoch_sonnenaufgang epoch_sonnenuntergang < $file_epoch
+read epoch_morgendaemmerung_start epoch_tageslicht_start epoch_tageslicht_stop epoch_abenddaemmerung_stop epoch_sonnenaufgang epoch_sonnenuntergang < $file_epoch
 
 
