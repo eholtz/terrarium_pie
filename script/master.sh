@@ -2,7 +2,26 @@
 
 # entry point for the complete terrarium control procedures
 
+# first check if we have messed up time
+if [ $(chronyc tracking | grep "System time" | awk '{print $4}' | cut -d '.' -f 1) -gt 5 ] ; then
+  systemctl restart chrony
+  sleep 2
+  chronyc waitsync 3
+fi
+
+# now get all the definitions from config
 source "$(readlink -f $(dirname $0)/../config/files.sh)"
 
-[ $init -eq 1 ] && $dir_script/init.sh
+$runlog="$dir_log/runlog.$(date +%Y%m%d.%H%M%S)"
 
+echo "Starting up @ $(date +%Y%m%d.%H%M%S) ... " > $runlog
+if [ $init -eq 1 ] ; then
+  echo "Seems we have been rebooted or whatever, so init things ..." >> $runlog
+  $dir_script/init.sh &>> $runlog
+fi
+
+echo "Check if we have startup or rolled over day ... " >> $runlog
+source $dir_script/controltime.sh >> $runlog
+
+echo "Control rain ... " >> $runlog
+source $dir_script/rain.sh &>> $runlog

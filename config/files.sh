@@ -27,7 +27,26 @@ declare -A sensors
 declare -A sensornames
 sensors[1]=22
 sensors[2]=24
-sensorname[22]="Ecke"
-sensorname[24]="Deckel"
+sensorname[1]="Ecke"
+sensorname[2]="Deckel"
+
+declare -A relaispins
+declare -A relaispinnames
+relaispins[1]=8
+relaispins[2]=9
+relaispins[3]=7
+relaispins[4]=0
+relaispins[5]=2
+relaispins[6]=3
+relaispins[7]=12
+relaispins[8]=14
+relaispinnames[1]="Tageslicht"
+relaispinnames[2]="12V Trafo"
+relaispinnames[3]="Spot Stein"
+relaispinnames[4]="Spot Ecke"
+relaispinnames[5]="Heizschlauch"
+relaispinnames[6]="Kameraladegerät"
+relaispinnames[7]="Regenmaschine"
+relaispinnames[8]="Undefined"
 
 
