@@ -10,11 +10,14 @@ dir_script="$dir_base/script/"
 dir_bin="$dir_base/bin/"
 dir_log="$dir_tmp/log/"
 dir_rrd="$dir_tmp/rrd/"
+dir_volatile="$dir_tmp/volatile/"
 dir_html="/var/www/terrarium/"
+dir_backup="/mnt/nfs/terrarium/"
 
 [ ! -d $dir_tmp ] && mkdir -p $dir_tmp && init=1
 [ ! -d $dir_log ] && mkdir -p $dir_log && init=1
 [ ! -d $dir_rrd ] && mkdir -p $dir_rrd && init=1
+[ ! -d $dir_volatile ] && mkdir -p $dir_volatile
 
 rrd_gpio="$dir_rrd/gpio"
 rrd_sensor="$dir_rrd/sensor"
