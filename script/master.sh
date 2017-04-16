@@ -12,7 +12,7 @@ fi
 # now get all the definitions from config
 source "$(readlink -f $(dirname $0)/../config/files.sh)"
 
-$runlog="$dir_log/runlog.$(date +%Y%m%d.%H%M%S)"
+runlog="$dir_log/runlog.$(date +%Y%m%d.%H%M%S)"
 
 echo "Starting up @ $(date +%Y%m%d.%H%M%S) ... " > $runlog
 if [ $init -eq 1 ] ; then
@@ -26,4 +26,5 @@ source $dir_script/times_daylight.sh &>> $runlog
 echo "Read the rain times ... " >> $runlog
 source $dir_script/times_rain.sh &>> $runlog
 
-
+[ -f $dir_log/lastlog ] && rm $dir_log/lastlog
+ln -s $runlog $dir_log/lastlog

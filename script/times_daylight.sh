@@ -9,10 +9,14 @@ file_times="$dir_volatile/times"
 file_epoch="$dir_volatile/times_epoch"
 
 if [ ! -f $file_today ] ; then
+  echo "File $file_today not found => assuming new day or reboot"
+  echo "Cleaning up ..."
   rm -f $dir_volatile/times* &> /dev/null
   cd $dir_volatile
-  $bin_dir/timecontrol
-  read msh tlh nlh ash tah toh < $file_time
+  echo "Calculating times ..."
+  $dir_bin/timecontrol
+  echo "Converting times to epoch ..."
+  read msh tlh nlh ash tah toh < $file_times
   ms=$(date -d $msh +%s)
   tl=$(date -d $tlh +%s)
   nl=$(date -d $nlh +%s)
