@@ -40,9 +40,8 @@ if [ ! -f $rrd_gpio ]; then
     DS:pin29:GAUGE:120:0:1 \
     DS:pin30:GAUGE:120:0:1 \
     DS:pin31:GAUGE:120:0:1 \
-    RRA:AVERAGE:0.5:1:1440 \ 
-    RRA:AVERAGE:0.1:5:18000 \
-    RRA:AVERAGE:0.1:60:18000
+    RRA:AVERAGE:0.5:1:1440 RRA:AVERAGE:0.1:5:18000 RRA:AVERAGE:0.1:60:18000
+
 fi
 
 for i in $(seq 0 31) ; do
