@@ -22,6 +22,6 @@ if [ $epoch_rain_start -gt 0 ]; then
   if [ $((($epoch_current/60) % 3)) -ne 0 ] ; then
     switchrelais[${relaisnamepin["Regenmaschine"]}]=0
   fi
-elif
+else
   echo "No rain today ..."
 fi
