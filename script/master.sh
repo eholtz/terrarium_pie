@@ -21,7 +21,7 @@ if [ $init -eq 1 ] ; then
 fi
 
 echo "Check if we have startup or rolled over day ... " >> $runlog
-source $dir_script/controltime.sh >> $runlog
+source $dir_script/controltime.sh &>> $runlog
 
 echo "Control rain ... " >> $runlog
 source $dir_script/rain.sh &>> $runlog
