@@ -61,13 +61,13 @@ for i in 1_12h 2_7d 3_4w 4_1y ; do
 done
 
 echo "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><title>$(hostname)</title></head><body>" > $dir_html/index.html
-echo "<pre>"
-cat "${file_status}"
-echo "</pre>"
+echo "<pre>" >> $dir_html/index.html
+cat "${file_status}" >> $dir_html/index.html
+echo "</pre>" >> $dir_html/index.html
 for image in $(find $dir_html -maxdepth 1 -iname "*.png" | sort -u) ; do
   echo "<br /><img src=\"$(basename $image)\">" >> $dir_html/index.html
 done 
-echo "<hr><pre>"
-cat "${dir_log}/lastlog"
+echo "<hr><pre>" >> $dir_html/index.html
+cat "${dir_log}/lastlog" >> $dir_html/index.html
 echo "</pre></body></html>" >> $dir_html/index.html
 
