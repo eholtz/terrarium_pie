@@ -60,7 +60,7 @@ for i in 1_12h 2_7d 3_4w 4_1y ; do
   done
 done
 
-echo "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><title>$(hostname)</title></head><body>" > $dir_html/index.html
+echo "<!DOCTYPE html><html lang=\"en\"><head><meta http-equiv=\"refresh\" content=\"120\"><meta charset=\"utf-8\"><title>$(hostname)</title></head><body>" > $dir_html/index.html
 echo "<pre>" >> $dir_html/index.html
 cat "${file_status}" >> $dir_html/index.html
 echo "</pre>" >> $dir_html/index.html
