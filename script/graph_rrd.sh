@@ -73,12 +73,13 @@ cat "${file_status}" >> $dir_html/index.html
 echo "</pre>" >> $dir_html/index.html
 for i in $timespans ; do
   span=$(echo $i | cut -d '_' -f 2)
-  echo "<h2>Timespan ${span}</h2>" >> $dir_html/index.html
-  echo ${imgblock[$span]} >> $dir_html/index.html
+  echo "<h2 onclick=\"f_${span}()\">Timespan ${span}</h2>" >> $dir_html/index.html
+  echo "<script>function f_${span}() { if ( document.getElementById(\"$span\").innerHTML.length < 1) { 
+        document.getElementById(\"$span\").innerHTML = '${imgblock[$span]}';
+        } else {
+        document.getElementById(\"$span\").innerHTML = '';
+        } }</script>" >> $dir_html/index.html
 done
-#for image in $(find $dir_html -maxdepth 1 -iname "*.png" | sort -u) ; do
-#  echo "<br /><img src=\"$(basename $image)\">" >> $dir_html/index.html
-#done 
 echo "<hr><pre>" >> $dir_html/index.html
 cat "${dir_log}/lastlog" >> $dir_html/index.html
 echo "</pre></body></html>" >> $dir_html/index.html
