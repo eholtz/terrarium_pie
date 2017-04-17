@@ -21,10 +21,13 @@ humcol[1]="4444ff"
 humcol[2]="8888ff"
 humcol[3]="aaaaff"
 
+declare -A imgblock
+
 for i in 1_12h 2_7d 3_4w 4_1y ; do
   span=$(echo $i | cut -d '_' -f 2)
   lastvalue=$(rrdtool last $rrd_gpio)
 
+  defaultrrdoptions="--imginfo '<img src=\"./%s\" width=\"%lu\" height=\"%lu\">' --lazy --end $lastvalue --start end-${span} --tabwidth 60 --width 1024"
   DEF=""
   VDEF=""
   GRAPH=""
@@ -35,8 +38,8 @@ for i in 1_12h 2_7d 3_4w 4_1y ; do
     GRAPH="$GRAPH LINE1:v${s}#${tmpcol[$counter]}:\"${sensoridname[$s]}\t\" GPRINT:v${s}l:\"%2.1lf °C\l\""
     counter=$(($counter+1))
   done
-  echo "timeout 10 rrdtool graph $dir_html/${i}_temperature.png --lazy --end $lastvalue --start end-${span} --tabwidth 60 --width 1024 --title \"Temperatur - ${span}\" $DEF $VDEF $GRAPH" > $dir_volatile/rrd_execute
-  bash $dir_volatile/rrd_execute
+  echo "timeout 10 rrdtool graph $dir_html/${i}_temperature.png $defaultrrdoptions --title \"Temperatur - ${span}\" $DEF $VDEF $GRAPH" > $dir_volatile/rrd_execute
+  imgblock[$span]="${imgblock[$span]} $(bash $dir_volatile/rrd_execute)"
 
   DEF=""
   VDEF=""
@@ -48,25 +51,31 @@ for i in 1_12h 2_7d 3_4w 4_1y ; do
     GRAPH="$GRAPH LINE1:v${s}#${humcol[$counter]}:\"${sensoridname[$s]}\t\" GPRINT:v${s}l:\"%2.1lf %%\l\""
     counter=$(($counter+1))
   done
-  echo "timeout 10 rrdtool graph $dir_html/${i}_humidity.png --lazy --end $lastvalue --start end-${span} --tabwidth 60 --width 1024 --title \"Luftfeuchtigkeit - ${span}\" $DEF $VDEF $GRAPH" > $dir_volatile/rrd_execute
-  bash $dir_volatile/rrd_execute
+  echo "timeout 10 rrdtool graph $dir_html/${i}_humidity.png $defaultrrdoptions --title \"Luftfeuchtigkeit - ${span}\" $DEF $VDEF $GRAPH" > $dir_volatile/rrd_execute
+  imgblock[$span]="${imgblock[$span]} $(bash $dir_volatile/rrd_execute)"
+
 
   for r in "${!relaispins[@]}" ; do
     DEF="DEF:v${r}=${rrd_gpio}:pin${relaispins[$r]}:AVERAGE"
     GRAPH="AREA:v${r}#aaffaa"
     #    GRAPH="AREA:v${r}#aaffaa:${relaispinname[$r]}:skipscale"
-    echo "timeout 10 rrdtool graph $dir_html/${i}_z_gpio_${r}.png --lazy --end $lastvalue --start end-${span} --width 1024 --height 30 --lower-limit 0 --upper-limit 1 --rigid --y-grid 1:3 --title \"${relaispinname[$r]}\" $DEF $GRAPH" > $dir_volatile/rrd_execute
-    bash $dir_volatile/rrd_execute
+    echo "timeout 10 rrdtool graph $dir_html/${i}_z_gpio_${r}.png $defaultrrdoptions --height 30 --lower-limit 0 --upper-limit 1 --rigid --y-grid 1:3 --title \"${relaispinname[$r]}\" $DEF $GRAPH" > $dir_volatile/rrd_execute
+    imgblock[$span]="${imgblock[$span]} $(bash $dir_volatile/rrd_execute)"
   done
 done
 
 echo "<!DOCTYPE html><html lang=\"en\"><head><meta http-equiv=\"refresh\" content=\"120\"><meta charset=\"utf-8\"><title>$(hostname)</title></head><body>" > $dir_html/index.html
+echo "<h1>$(hostname)</h1>"
 echo "<pre>" >> $dir_html/index.html
 cat "${file_status}" >> $dir_html/index.html
 echo "</pre>" >> $dir_html/index.html
-for image in $(find $dir_html -maxdepth 1 -iname "*.png" | sort -u) ; do
-  echo "<br /><img src=\"$(basename $image)\">" >> $dir_html/index.html
-done 
+for block in "${!imgblock[@]}" ; do
+  echo "<h2>Timespan ${block}</h2>" >> $dir_html/index.html
+  echo ${imgblock[$block]} >> $dir_html/index.html
+done
+#for image in $(find $dir_html -maxdepth 1 -iname "*.png" | sort -u) ; do
+#  echo "<br /><img src=\"$(basename $image)\">" >> $dir_html/index.html
+#done 
 echo "<hr><pre>" >> $dir_html/index.html
 cat "${dir_log}/lastlog" >> $dir_html/index.html
 echo "</pre></body></html>" >> $dir_html/index.html
