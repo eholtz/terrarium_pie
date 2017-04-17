@@ -23,7 +23,9 @@ humcol[3]="aaaaff"
 
 declare -A imgblock
 
-for i in 1_12h 2_7d 3_4w 4_1y ; do
+timespans="1_12h 2_7d 3_4w 4_1y"
+
+for i in $timespans ; do
   span=$(echo $i | cut -d '_' -f 2)
   lastvalue=$(rrdtool last $rrd_gpio)
 
@@ -65,13 +67,14 @@ for i in 1_12h 2_7d 3_4w 4_1y ; do
 done
 
 echo "<!DOCTYPE html><html lang=\"en\"><head><meta http-equiv=\"refresh\" content=\"120\"><meta charset=\"utf-8\"><title>$(hostname)</title></head><body>" > $dir_html/index.html
-echo "<h1>$(hostname)</h1>"
+echo "<h1>$(hostname)</h1>" >> $dir_html/index.html
 echo "<pre>" >> $dir_html/index.html
 cat "${file_status}" >> $dir_html/index.html
 echo "</pre>" >> $dir_html/index.html
-for block in "${!imgblock[@]}" ; do
-  echo "<h2>Timespan ${block}</h2>" >> $dir_html/index.html
-  echo ${imgblock[$block]} >> $dir_html/index.html
+for i in $timespans ; do
+  span=$(echo $i | cut -d '_' -f 2)
+  echo "<h2>Timespan ${span}</h2>" >> $dir_html/index.html
+  echo ${imgblock[$span]} >> $dir_html/index.html
 done
 #for image in $(find $dir_html -maxdepth 1 -iname "*.png" | sort -u) ; do
 #  echo "<br /><img src=\"$(basename $image)\">" >> $dir_html/index.html
