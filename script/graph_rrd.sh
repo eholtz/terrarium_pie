@@ -79,6 +79,7 @@ for i in $timespans ; do
         } else {
         document.getElementById(\"$span\").innerHTML = '';
         } }</script>" >> $dir_html/index.html
+  echo "<div id=\"$span\"></div>" >> $dir_html/index.html
 done
 echo "<hr><pre>" >> $dir_html/index.html
 cat "${dir_log}/lastlog" >> $dir_html/index.html
