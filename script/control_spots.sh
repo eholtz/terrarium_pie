@@ -26,3 +26,15 @@ if [ ${temperature[${sensornameid["Deckel"]}]} -gt $soll_temp_deckel_tag_max ] ;
   switchrelais[${relaisnamepin["Spot Ecke"]}]=0
 fi
 
+if [ $epoch_current -le $epoch_tageslicht_start ] ; then
+  echo "It is too early => turn off spots"  
+  switchrelais[${relaisnamepin["Spot Stein"]}]=0
+  switchrelais[${relaisnamepin["Spot Ecke"]}]=0
+fi
+
+if [ $epoch_current -ge $epoch_tageslicht_stop ] ; then
+  echo "It is too late => turn off spots"
+  switchrelais[${relaisnamepin["Spot Stein"]}]=0
+  switchrelais[${relaisnamepin["Spot Ecke"]}]=0
+fi
+

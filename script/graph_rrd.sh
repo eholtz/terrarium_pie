@@ -32,7 +32,7 @@ for i in 1_12h 2_7d 3_4w 4_1y ; do
   for s in "${!sensoridname[@]}" ; do
     DEF="$DEF DEF:v${s}=${rrd_sensor}_${sensors[$s]}:temperature:AVERAGE"
     VDEF="$VDEF VDEF:v${s}l=v${s},LAST"
-    GRAPH="$GRAPH LINE1:v${s}#${tmpcol[$counter]}:\"${sensoridname[$s]}\t\" GPRINT:v${s}l:\"%2.1lf %%\l\""
+    GRAPH="$GRAPH LINE1:v${s}#${tmpcol[$counter]}:\"${sensoridname[$s]}\t\" GPRINT:v${s}l:\"%2.1lf °C\l\""
     counter=$(($counter+1))
   done
   echo "timeout 10 rrdtool graph $dir_html/${i}_temperature.png --lazy --end $lastvalue --start end-${span} --tabwidth 60 --width 1024 --title \"Temperatur - ${span}\" $DEF $VDEF $GRAPH" > $dir_volatile/rrd_execute
