@@ -41,6 +41,8 @@ source $dir_script/control_heating.sh &>> $runlog
 echo "Switching the relais pins ..." >> $runlog
 source $dir_script/switch_relais.sh &>> $runlog
 
+echo "Writing status data for html page ..." >> $runlog
+source $dir_script/write_status.sh &>> $runlog
 
 [ -f $dir_log/lastlog ] && rm $dir_log/lastlog
 ln -s $runlog $dir_log/lastlog
