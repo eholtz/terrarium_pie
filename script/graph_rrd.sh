@@ -62,7 +62,7 @@ done
 
 echo "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><title>$(hostname)</title></head><body>" > $dir_html/index.html
 echo "<pre>"
-cat "${dir_volatile}/status"
+cat "${file_status}"
 echo "</pre>"
 for image in $(find $dir_html -maxdepth 1 -iname "*.png" | sort -u) ; do
   echo "<br /><img src=\"$(basename $image)\">" >> $dir_html/index.html

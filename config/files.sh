@@ -18,6 +18,8 @@ dir_volatile="$dir_tmp/volatile/"
 dir_html="/mnt/nfs/html/"
 dir_backup="/mnt/nfs/terrarium/"
 
+file_status="${dir_volatile}/status"
+
 soll_temp_ecke_tag_min=23
 soll_temp_ecke_tag_max=25
 soll_temp_deckel_tag_max=40
