@@ -44,7 +44,7 @@ source $dir_script/switch_relais.sh &>> $runlog
 echo "Writing status data for html page ..." >> $runlog
 source $dir_script/write_status.sh &>> $runlog
 
-echo "Pointint lastlog to last log ..." >> $runlog
+echo "Pointing lastlog to last log ..." >> $runlog
 [ -f $dir_log/lastlog ] && rm $dir_log/lastlog
 ln -s $runlog $dir_log/lastlog
 
