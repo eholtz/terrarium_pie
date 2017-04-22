@@ -73,6 +73,8 @@ for i in "${!relaispinname[@]}" ; do
   relaisnamepin[${relaispinname[$i]}]=$i
 done
 
+# todo: this should be done with a semaphore
+# to prevent parallel init processes
 if [ $init -eq 1 ] ; then
   echo "$(date) re-init " > $dir_log/_init
   source $dir_script/init.sh
