@@ -68,6 +68,7 @@ done
 
 echo "<!DOCTYPE html><html lang=\"en\"><head><meta http-equiv=\"refresh\" content=\"120\"><meta charset=\"utf-8\"><title>$(hostname)</title></head><body>" > $dir_html/index.html
 echo "<h1>$(hostname)</h1>" >> $dir_html/index.html
+echo "<p><a href=\"pic.html\">pictures</a></p>" >> $dir_html/index.html
 echo "<pre>" >> $dir_html/index.html
 cat "${file_status}" >> $dir_html/index.html
 echo "</pre>" >> $dir_html/index.html
@@ -84,4 +85,9 @@ done
 echo "<hr><pre>" >> $dir_html/index.html
 cat "${dir_log}/lastlog" >> $dir_html/index.html
 echo "</pre></body></html>" >> $dir_html/index.html
+
+echo "<!DOCTYPE html><html lang=\"en\"><head><meta http-equiv=\"refresh\" content=\"120\"><meta charset=\"utf-8\"><title>$(hostname) - pictures</title></head><body>" > $dir_html/pic.html
+echo "<img height=\"100%\" src=\"latest.jpg\">" >> $dir_html/pic.html
+echo "</body></html>" >> $dir_html/pic.html
+
 
