@@ -87,7 +87,8 @@ cat "${dir_log}/lastlog" >> $dir_html/index.html
 echo "</pre></body></html>" >> $dir_html/index.html
 
 echo "<!DOCTYPE html><html lang=\"en\"><head><meta http-equiv=\"refresh\" content=\"120\"><meta charset=\"utf-8\"><title>$(hostname) - pictures</title></head><body>" > $dir_html/pic.html
-echo "<img height=\"100%\" src=\"latest.jpg\">" >> $dir_html/pic.html
+echo "<img id=\"p\" src=\"latest.jpg\">" >> $dir_html/pic.html
+echo "<script>var i = document.getElementById('p');if(i && i.style) { i.style.height = (window.innerHeight-20) + 'px'; }</script>" >> $dir_html/pic.html
 echo "</body></html>" >> $dir_html/pic.html
 
 
