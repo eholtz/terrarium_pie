@@ -8,6 +8,9 @@ if [ $(chronyc tracking | grep "System time" | awk '{print $4}' | cut -d '.' -f 
   sleep 2
   chronyc waitsync 3
 fi
+if [ -n "$(chronc tracking | grep "Not synchronised")" ] ; then
+  systemctl restart chrony
+fi
 
 # now get all the definitions from config
 source "$(readlink -f $(dirname $0)/../config/files.sh)"
@@ -43,6 +46,9 @@ source $dir_script/switch_relais.sh &>> $runlog
 
 echo "Writing status data for html page ..." >> $runlog
 source $dir_script/write_status.sh &>> $runlog
+
+echo "Fetch terracam picture ..." >> $runlog
+source $dir_script/terracam.sh &>> $runlog
 
 echo "Pointing lastlog to last log ..." >> $runlog
 [ -f $dir_log/lastlog ] && rm $dir_log/lastlog
