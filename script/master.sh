@@ -50,6 +50,10 @@ source $dir_script/write_status.sh &>> $runlog
 echo "Fetch terracam picture ..." >> $runlog
 source $dir_script/terracam.sh &>> $runlog
 
+echo "Cleaning up old logs ..." >> $runlog
+find $dir_log -mtime +2 &>> $runlog
+find $dir_log -mtime +2 -delete &>> $runlog
+
 echo "Pointing lastlog to last log ..." >> $runlog
 [ -f $dir_log/lastlog ] && rm $dir_log/lastlog
 ln -s $runlog $dir_log/lastlog
