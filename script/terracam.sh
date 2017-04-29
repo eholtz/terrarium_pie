@@ -12,8 +12,7 @@ if [ $? -eq 0 ]; then
 	
 	mkdir -p $dir_html/$(date +%F) 
 	cp $dir_tmp/camtmptxt.jpg "$dir_html/$(date +%F)/geckocam01-$(date +%F_%R).jpg"
-        rm $dir_html/latest.jpg
-        ln -s "$dir_html/$(date +%F)/geckocam01-$(date +%F_%R).jpg" $dir_html/latest.jpg
+        cp $dir_tmp/camtmptxt.jpg $dir_html/latest.jpg
 	
 fi
 
