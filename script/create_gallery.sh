@@ -60,15 +60,13 @@ function step3 {
 function step4 {
   # finally create a html file
   echo "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><title>$(hostname) - pictures - $current_date</title>" > index.html
-  echo "<script src=\"../dist/photoswipe.min.js\"></script><script src=\"../dist/photoswipe-ui-default.min.js\"></script>" >> index.html
-  echo "<link href=\"../dist/default-skin/default-skin.css\" rel=\"stylesheet\" /><link href=\"../dist/photoswipe.css\" rel=\"stylesheet\" />" >> index.html
   echo "</head><body>" >> index.html
   echo "<a href=\"../\">back</a>" >> index.html
   echo "var pswpElement = document.querySelectorAll('.pswp')[0];" > gallery.js
   echo "var items$clean_date = [ " >> gallery.js
   while read pic ; do
     convert "$pic" -resize 128 "$pic.thumb.jpg"
-    echo "{ src: '$pic', w: 2592, h: 1952, msrc:'$pic.thumb.jpg', title: '$pic' }," >> gallery.js
+    echo "{ src: '$current_date/$pic', w: 2592, h: 1952, msrc:'$current_date/$pic.thumb.jpg', title: '$pic' }," >> gallery.js
     echo "<a href=\"$pic\"><img src=\"$pic.thumb.jpg\"></a>" >> index.html
   done < _liste3
   echo "var options$clean_date = { index:0 };" >> gallery.js
