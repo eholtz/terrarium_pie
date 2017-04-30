@@ -2,9 +2,9 @@
 
 source "$(readlink -f $(dirname $0)/../config/files.sh)"
 
-find $dir_html -exec chown www-data:www-data {} \; &> /dev/null
-find $dir_html -type d -exec chmod 755 {} \; &> /dev/null
-find $dir_html -type f -exec chmod 644 {} \; &> /dev/null
+#find $dir_html -exec chown www-data:www-data {} \; &> /dev/null
+#find $dir_html -type d -exec chmod 755 {} \; &> /dev/null
+#find $dir_html -type f -exec chmod 644 {} \; &> /dev/null
 
 # let's do this in local timezone
 TZ="Europe/Berlin"
@@ -68,7 +68,8 @@ done
 
 echo "<!DOCTYPE html><html lang=\"en\"><head><meta http-equiv=\"refresh\" content=\"120\"><meta charset=\"utf-8\"><title>$(hostname)</title></head><body>" > $dir_html/index.html
 echo "<h1>$(hostname)</h1>" >> $dir_html/index.html
-echo "<p><a href=\"pic.html\">pictures</a></p>" >> $dir_html/index.html
+echo "<p><a href=\"current_pic.html">current picture</a></p>" >> $dir_html/index.html
+echo "<p><a href=\"pic.html\">filtered pictures</a></p>" >> $dir_html/index.html
 echo "<pre>" >> $dir_html/index.html
 cat "${file_status}" >> $dir_html/index.html
 echo "</pre>" >> $dir_html/index.html
@@ -86,9 +87,16 @@ echo "<hr><pre>" >> $dir_html/index.html
 cat "${dir_log}/lastlog" >> $dir_html/index.html
 echo "</pre></body></html>" >> $dir_html/index.html
 
-echo "<!DOCTYPE html><html lang=\"en\"><head><meta http-equiv=\"refresh\" content=\"120\"><meta charset=\"utf-8\"><title>$(hostname) - pictures</title></head><body>" > $dir_html/pic.html
-echo "<img id=\"p\" src=\"latest.jpg\">" >> $dir_html/pic.html
-echo "<script>var i = document.getElementById('p');if(i && i.style) { i.style.height = (window.innerHeight-20) + 'px'; }</script>" >> $dir_html/pic.html
-echo "</body></html>" >> $dir_html/pic.html
+echo "<!DOCTYPE html><html lang=\"en\"><head><meta http-equiv=\"refresh\" content=\"120\"><meta charset=\"utf-8\"><title>$(hostname) - current picture</title></head><body>" > $dir_html/current_pic.html
+echo "<img id=\"p\" src=\"latest.jpg\">" >> $dir_html/current_pic.html
+echo "<script>var i = document.getElementById('p');if(i && i.style) { i.style.height = (window.innerHeight-20) + 'px'; }</script>" >> $dir_html/current_pic.html
+echo "</body></html>" >> $dir_html/current_pic.html
 
+echo "<!DOCTYPE html><html lang=\"en\"><head><title>$(hostname) - pictures</title></head><body>" > $dir_html/pic.html
+liste=$(find /mnt/nfs/html/ -mindepth 2 -maxdepth 2 -type f -iname "index.html" | sort)
+for entry in $liste ; do
+  linkname=$(basename $(dirname $liste))
+  echo "<a href=\"$linkname\">$linkname</a><br>" >> $dir_html/pic.html
+done
+echo "</body></html>" >> $dir_html/pic.html
 
