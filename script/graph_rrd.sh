@@ -68,7 +68,7 @@ done
 
 echo "<!DOCTYPE html><html lang=\"en\"><head><meta http-equiv=\"refresh\" content=\"120\"><meta charset=\"utf-8\"><title>$(hostname)</title></head><body>" > $dir_html/index.html
 echo "<h1>$(hostname)</h1>" >> $dir_html/index.html
-echo "<p><a href=\"current_pic.html">current picture</a></p>" >> $dir_html/index.html
+echo "<p><a href=\"current_pic.html\">current picture</a></p>" >> $dir_html/index.html
 echo "<p><a href=\"pic.html\">filtered pictures</a></p>" >> $dir_html/index.html
 echo "<pre>" >> $dir_html/index.html
 cat "${file_status}" >> $dir_html/index.html
@@ -93,12 +93,14 @@ echo "<script>var i = document.getElementById('p');if(i && i.style) { i.style.he
 echo "</body></html>" >> $dir_html/current_pic.html
 
 echo "<!DOCTYPE html><html lang=\"en\"><head><title>$(hostname) - pictures</title>" > $dir_html/pic.html
-echo "<script type=\"text/javascript\">function loadjs(fn) { var fileref=document.createElement('script'); fileref.setAttribute(\"type\",\"text/javascript\"); fileref.setAttribute(\"src\", filename); document.getElementsByTagName(\"head\")[0].appendChild(fileref); }</script>" >> $dir_html/pic.html
+echo "<script src=\"../dist/photoswipe.min.js\"></script><script src=\"../dist/photoswipe-ui-default.min.js\"></script>" >> $dir_html/pic.html
+echo "<link href=\"../dist/default-skin/default-skin.css\" rel=\"stylesheet\" /><link href=\"../dist/photoswipe.css\" rel=\"stylesheet\" />" >> $dir_html/pic.html
+echo "<script type=\"text/javascript\">function loadjs(fn) { var fileref=document.createElement('script'); fileref.setAttribute(\"type\",\"text/javascript\"); fileref.setAttribute(\"src\", fn); document.getElementsByTagName(\"head\")[0].appendChild(fileref); }</script>" >> $dir_html/pic.html
 echo "</head><body>" >> $dir_html/pic.html
 liste=$(find /mnt/nfs/html/ -mindepth 2 -maxdepth 2 -type f -iname "index.html" | sort)
 for entry in $liste ; do
   linkname=$(basename $(dirname $liste))
-  echo "$linkname | <a href=\"javascript:loadjs(\"$linkname/gallery.js\");\">view as javascript gallery</a> | <a href=\"$linkname\">view as plain html</a><br>" >> $dir_html/pic.html
+  echo "$linkname | <a href=\"javascript:loadjs('$linkname/gallery.js');\">view as javascript gallery</a> | <a href=\"$linkname\">view as plain html</a><br>" >> $dir_html/pic.html
 done
 cat $dir_html/dist/gallery_template.html >> $dir_html/pic.html
 echo "</body></html>" >> $dir_html/pic.html
