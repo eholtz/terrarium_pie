@@ -13,7 +13,7 @@ function step1 {
   for i in $(cat _liste); do 
     convert "$i" -resize 1x1 "$dir_tmp/tmp.bmp"
     convert $dir_tmp/tmp.bmp $dir_tmp/tmp.txt
-    sum=$(($(grep -o "\([0-9\,]*\)" tmp.txt | tail -n 1 | sed "s/\,/+/g")))
+    sum=$(($(grep -o "\([0-9\,]*\)" $dir_tmp/tmp.txt | tail -n 1 | sed "s/\,/+/g")))
     if [ $sum -gt 30 ] ; then
       echo "$i" >> _liste2
     fi
@@ -59,7 +59,7 @@ function step3 {
 
 function step4 {
   # finally create a html file
-  echo "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><title>$(hostname) - pictures - $(date %F)</title>" > index.html
+  echo "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><title>$(hostname) - pictures - $current_date</title>" > index.html
   #  echo "<img id=\"p\" src=\"latest.jpg\">" >> index.html
   #  echo "<script>var i = document.getElementById('p');if(i && i.style) { i.style.height = (window.innerHeight-20) + 'px'; }</script>" >> $dir_html/pic.html
   echo "<script src=\"../dist/photoswipe.min.js\"></script><script src=\"../dist/photoswipe-ui-default.min.js\"></script>" >> index.html
@@ -152,20 +152,22 @@ echo "Starting up @ $(date +"%T %Z") ... " > $runlog
 echo "logfile is $runlog " >> $runlog
 
 if [ -n "$1" ] ; then
-  $dir_today="$1"
+  dir_today="$1"
 else
-  $dir_today=$dir_html/$(date +%F)
+  dir_today="$dir_html/$(date +%F)"
 fi
+
+current_date=$(basename $dir_today)
 
 echo "Running on folder $dir_today" >> $runlog
 [ ! -d $dir_today ] && echo "Could not find $dir_today" && exit 1
 
-cwd=$(pwd)
+cwd=$(readlink -f $(dirname $0))
 cd $dir_today
 
 if [ ! -d $dir_html/dist/ ]; then
   echo "Initializing java script files..." >> $runlog
-  cp -vr "$(readlink -f $(dirname $0)/../html/dist)" "$dir_html" >> $runlog
+  cp -vr "$cwd/../html/dist" "$dir_html" >> $runlog
 fi
 
 echo "Step 1 @ $(date +"%T %Z") ... " >> $runlog
