@@ -68,7 +68,7 @@ done
 
 echo "<!DOCTYPE html><html lang=\"en\"><head><meta http-equiv=\"refresh\" content=\"120\"><meta charset=\"utf-8\"><title>$(hostname)</title></head><body>" > $dir_html/index.html
 echo "<h1>$(hostname)</h1>" >> $dir_html/index.html
-echo "<p><a href=\"current_pic.html">current picture</a></p>" >> $dir_html/index.html
+echo "<p><a href=\"current_pic.html\">current picture</a></p>" >> $dir_html/index.html
 echo "<p><a href=\"pic.html\">filtered pictures</a></p>" >> $dir_html/index.html
 echo "<pre>" >> $dir_html/index.html
 cat "${file_status}" >> $dir_html/index.html
