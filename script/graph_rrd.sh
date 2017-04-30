@@ -98,7 +98,7 @@ echo "</head><body>" >> $dir_html/pic.html
 liste=$(find /mnt/nfs/html/ -mindepth 2 -maxdepth 2 -type f -iname "index.html" | sort)
 for entry in $liste ; do
   linkname=$(basename $(dirname $liste))
-  echo "$linkname | <a href=\"javascript:loadjs(\'$linkname/gallery.js\');\">view as javascript gallery</a> | <a href=\"$linkname\">view as plain html</a><br>" >> $dir_html/pic.html
+  echo "$linkname | <a href=\"javascript:loadjs(\"$linkname/gallery.js\");\">view as javascript gallery</a> | <a href=\"$linkname\">view as plain html</a><br>" >> $dir_html/pic.html
 done
 cat $dir_html/dist/gallery_template.html >> $dir_html/pic.html
 echo "</body></html>" >> $dir_html/pic.html
