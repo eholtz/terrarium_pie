@@ -92,11 +92,14 @@ echo "<img id=\"p\" src=\"latest.jpg\">" >> $dir_html/current_pic.html
 echo "<script>var i = document.getElementById('p');if(i && i.style) { i.style.height = (window.innerHeight-20) + 'px'; }</script>" >> $dir_html/current_pic.html
 echo "</body></html>" >> $dir_html/current_pic.html
 
-echo "<!DOCTYPE html><html lang=\"en\"><head><title>$(hostname) - pictures</title></head><body>" > $dir_html/pic.html
+echo "<!DOCTYPE html><html lang=\"en\"><head><title>$(hostname) - pictures</title>" > $dir_html/pic.html
+echo "<script type=\"text/javascript\">function loadjs(fn) { var fileref=document.createElement('script'); fileref.setAttribute(\"type\",\"text/javascript\"); fileref.setAttribute(\"src\", filename); document.getElementsByTagName(\"head\")[0].appendChild(fileref); }</script>" >> $dir_html/pic.html
+echo "</head><body>" >> $dir_html/pic.html
 liste=$(find /mnt/nfs/html/ -mindepth 2 -maxdepth 2 -type f -iname "index.html" | sort)
 for entry in $liste ; do
   linkname=$(basename $(dirname $liste))
-  echo "<a href=\"$linkname\">$linkname</a><br>" >> $dir_html/pic.html
+  echo "$linkname | <a href=\"javascript:loadjs(\'$linkname/gallery.js\');\">view as javascript gallery</a> | <a href=\"$linkname\">view as plain html</a><br>" >> $dir_html/pic.html
 done
+cat $dir_html/dist/gallery_template.html >> $dir_html/pic.html
 echo "</body></html>" >> $dir_html/pic.html
 
