@@ -5,6 +5,8 @@ function step1 {
   [ -f _liste ] && rm _liste
   [ -f _liste2 ] && rm _liste2
 
+  find ./ -empty -delete
+
   # first create a list of all images
   find ./ -mindepth 1 -maxdepth 1 -iname "*.jpg" | sort > _liste
 
@@ -61,7 +63,7 @@ function step4 {
   # finally create a html file
   echo "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><title>$(hostname) - pictures - $current_date</title>" > index.html
   echo "</head><body>" >> index.html
-  echo "<a href=\"../\">back</a>" >> index.html
+  echo "<a href=\"../\">back</a><br />" >> index.html
   echo "var pswpElement = document.querySelectorAll('.pswp')[0];" > gallery.js
   echo "var items$clean_date = [ " >> gallery.js
   while read pic ; do
@@ -69,9 +71,10 @@ function step4 {
     echo "{ src: '$current_date/$pic', w: 2592, h: 1952, msrc:'$current_date/$pic.thumb.jpg', title: '$pic' }," >> gallery.js
     echo "<a href=\"$pic\"><img src=\"$pic.thumb.jpg\"></a>" >> index.html
   done < _liste3
+  echo "];" >> gallery.js
   echo "var options$clean_date = { index:0 };" >> gallery.js
   echo "var gallery$clean_date = new PhotoSwipe( pswpElement, PhotoSwipeUI_Default, items$clean_date, options$clean_date );" >> gallery.js
-#  echo "gallery$clean_date.init();" >> gallery.js
+  echo "gallery$clean_date.init();" >> gallery.js
   echo "<script src=\"gallery.js\"></script>" >> index.html
   echo "</body></html>" >> index.html
 }
