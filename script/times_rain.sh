@@ -4,14 +4,20 @@
 TZ="UTC"
 export TZ
 
+file_rainthismonth="$dir_volatile/rain_$(date +%Y%m)"
+
 file_raintoday="$dir_volatile/rain_$(date +%Y%m%d)"
-file_rainduration="$dir_volatile/rain_duration"
 
 if [ ! -f $file_raintoday ] ; then
-  echo "File $file_raintoday => assuming new day or reboot"
+  echo "File $file_raintoday missing => assuming new month or reboot"
   echo "Cleaning up ..."
   rm -f $dir_volatile/rain* &> /dev/null
   echo "Calculating if it will rain ..."
+  thismonth=$(date +%m)
+  daycount=0
+  while [ $(date -d "+ $daycount day" +%m) -eq $thismonth ]; do
+    file_rainduration="$dir_volatile/rain_duration_$(date -d "+ $daycount day" +%Y%m%d)"
+    file_raintoday="$dir_volatile/rain_$(date -d "+ $daycount day" +%Y%m%d)"
   rn=$RANDOM
   res=$(($rn % 3))
   echo "Random number is $rn - calculation is $res"
@@ -23,7 +29,14 @@ if [ ! -f $file_raintoday ] ; then
     echo "0" > $file_raintoday
     echo "0" > $file_rainduration
   fi
+  daycount=$(($daycount+1))
+
+done
 fi
+
+file_rainduration="$dir_volatile/rain_duration_$(date +%Y%m%d)"
+file_raintoday="$dir_volatile/rain_$(date +%Y%m%d)"
+
 
 read epoch_rain_start < $file_raintoday
 read epoch_rain_duration < $file_rainduration
