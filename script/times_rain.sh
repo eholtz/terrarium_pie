@@ -12,8 +12,11 @@ if [ ! -f $file_raintoday ] ; then
   echo "Cleaning up ..."
   rm -f $dir_volatile/rain* &> /dev/null
   echo "Calculating if it will rain ..."
+  rn=$RANDOM
+  res=$(($rn % 3))
+  echo "Random number is $rn - calculation is $res"
   # it will rain about once every four days
-  if [ $(($RANDOM % 4)) -eq 0 ] ; then
+  if [ $res -eq 0 ] ; then
     echo $((($RANDOM % ($epoch_tageslicht_stop-$epoch_tageslicht_start))+$epoch_tageslicht_start)) > $file_raintoday
     echo $((($RANDOM % 15)*60+300)) > $file_rainduration
   else
