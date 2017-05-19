@@ -12,12 +12,12 @@ echo "Sonnenuntergang        $epoch_sonnenuntergang / $(date -d @$epoch_sonnenun
 echo "Stop Abenddaemmerung   $epoch_abenddaemmerung_stop / $(date -d @$epoch_abenddaemmerung_stop +"%T %Z")"     >> $file_status
 
 if [ $epoch_rain_start -gt 0 ] ; then
-  echo "---"                                                                    >> $file_status
+  echo "---" >> $file_status
   echo "Start Regen Heute $epoch_rain_start / $(date -d @$epoch_rain_start +"%T %Z")" >> $file_status
   echo "Stop Regen Heute  $epoch_rain_stop / $(date -d @$epoch_rain_stop +"%T %Z")"   >> $file_status
 fi
 
-echo "---"
+echo "---" >> $file_status
 rainfilelist=$(find $dir_volatile -iname "rain_[0-9]*" | sort)
 for rf in $rainfilelist ; do
   rfc=$(cat $rf)
@@ -26,7 +26,7 @@ for rf in $rainfilelist ; do
     raindays="$raindays $ard"
   fi
 done
-echo "Es wird an diesen Tagen Regnen: $raindays"
+echo "Es wird an diesen Tagen Regnen: $raindays" >> $file_status
 TZ="$ctz"
 export TZ
 
