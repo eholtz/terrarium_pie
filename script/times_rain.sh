@@ -18,7 +18,7 @@ if [ ! -f $file_raintoday ] ; then
     file_rainduration="$dir_volatile/rain_duration_$(date -d "+ $daycount day" +%Y%m%d)"
     file_raintoday="$dir_volatile/rain_$(date -d "+ $daycount day" +%Y%m%d)"
     rn=$RANDOM
-    res=$(($rn % 3))
+    res=$(($rn % 4))
     echo "Random number is $rn - calculation is $res"
     # it will rain about once every four days
     if [ $res -eq 0 ] ; then

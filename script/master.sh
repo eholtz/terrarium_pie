@@ -8,7 +8,7 @@ if [ $(chronyc tracking | grep "System time" | awk '{print $4}' | cut -d '.' -f 
   sleep 2
   chronyc waitsync 3
 fi
-if [ -n "$(chronc tracking | grep "Not synchronised")" ] ; then
+if [ -n "$(chronyc tracking | grep "Not synchronised")" ] ; then
   systemctl restart chrony
 fi
 
