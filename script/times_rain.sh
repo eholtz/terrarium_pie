@@ -5,7 +5,6 @@ TZ="UTC"
 export TZ
 
 file_rainthismonth="$dir_volatile/rain_$(date +%Y%m)"
-
 file_raintoday="$dir_volatile/rain_$(date +%Y%m%d)"
 
 if [ ! -f $file_raintoday ] ; then
@@ -18,20 +17,20 @@ if [ ! -f $file_raintoday ] ; then
   while [ $(date -d "+ $daycount day" +%m) -eq $thismonth ]; do
     file_rainduration="$dir_volatile/rain_duration_$(date -d "+ $daycount day" +%Y%m%d)"
     file_raintoday="$dir_volatile/rain_$(date -d "+ $daycount day" +%Y%m%d)"
-  rn=$RANDOM
-  res=$(($rn % 3))
-  echo "Random number is $rn - calculation is $res"
-  # it will rain about once every four days
-  if [ $res -eq 0 ] ; then
-    echo $((($RANDOM % ($epoch_tageslicht_stop-$epoch_tageslicht_start))+$epoch_tageslicht_start)) > $file_raintoday
-    echo $((($RANDOM % 15)*60+300)) > $file_rainduration
-  else
-    echo "0" > $file_raintoday
-    echo "0" > $file_rainduration
-  fi
-  daycount=$(($daycount+1))
+    rn=$RANDOM
+    res=$(($rn % 3))
+    echo "Random number is $rn - calculation is $res"
+    # it will rain about once every four days
+    if [ $res -eq 0 ] ; then
+      echo $((($RANDOM % ($epoch_tageslicht_stop-$epoch_tageslicht_start))+$epoch_tageslicht_start)) > $file_raintoday
+      echo $((($RANDOM % 15)*60+300)) > $file_rainduration
+    else
+      echo "0" > $file_raintoday
+      echo "0" > $file_rainduration
+    fi
+    daycount=$(($daycount+1))
 
-done
+  done
 fi
 
 file_rainduration="$dir_volatile/rain_duration_$(date +%Y%m%d)"
