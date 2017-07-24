@@ -24,7 +24,7 @@ if [ ! -f $file_raintoday ] ; then
     res=$(($rn % 100))
     echo "Random number is $rn - calculation is $res"
     # it will rain about once every four days
-    if [ "$random_value" -gt "$rain_probability" ] ; then
+    if [ "$res" -gt "$rain_probability" ] ; then
       echo "0" > $file_raintoday
       echo "0" > $file_rainduration
       rain_probability=$(($rain_probability + 15))
