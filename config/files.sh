@@ -20,8 +20,8 @@ dir_backup="/mnt/nfs/terrarium/"
 
 file_status="${dir_volatile}/status"
 
-soll_temp_ecke_tag_min=23
-soll_temp_ecke_tag_max=25
+soll_temp_ecke_tag_min=21
+soll_temp_ecke_tag_max=23
 soll_temp_deckel_tag_max=40
 soll_temp_ecke_nacht_min=20
 soll_temp_ecke_nacht_max=21
@@ -49,6 +49,7 @@ for i in "${!sensoridname[@]}" ; do
   sensornameid[${sensoridname[$i]}]=$i
 done
 
+declare -A motorpins
 declare -A relaispins
 declare -A relaispinname
 declare -A relaisnamepin
@@ -61,6 +62,8 @@ relaispins[5]=2
 relaispins[6]=3
 relaispins[7]=12
 relaispins[8]=14
+motorpins[1]=24
+motorpins[2]=25
 relaispinname[1]="Tageslicht"
 relaispinname[2]="12V Trafo"
 relaispinname[3]="Spot Stein"
