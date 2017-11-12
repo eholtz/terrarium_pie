@@ -72,6 +72,8 @@ relaispinname[5]="Heizschlauch"
 relaispinname[6]="Kameraladegerät"
 relaispinname[7]="Regenmaschine"
 relaispinname[8]="Undefined"
+motorpinname[1]="Front runter"
+motorpinname[2]="Front rauf"
 for i in "${!relaispinname[@]}" ; do
   relaisnamepin[${relaispinname[$i]}]=$i
 done

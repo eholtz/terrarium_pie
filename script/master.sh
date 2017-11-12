@@ -41,6 +41,9 @@ source $dir_script/control_rain.sh &>> $runlog
 echo "Control the heating element ... " >> $runlog
 source $dir_script/control_heating.sh &>> $runlog
 
+echo "Control the blinds ..." >> $runlog
+source $dir_script/control_blinds.sh &>> $runlog
+
 echo "Control misc things ..." >> $runlog
 source $dir_script/control_misc.sh &>> $runlog
 
