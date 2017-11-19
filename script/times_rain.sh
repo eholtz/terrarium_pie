@@ -27,11 +27,11 @@ if [ ! -f $file_raintoday ] ; then
     if [ "$res" -gt "$rain_probability" ] ; then
       echo "0" > $file_raintoday
       echo "0" > $file_rainduration
-      rain_probability=$(($rain_probability + 15))
+      rain_probability=$(($rain_probability + 10))
     else
       echo $((($RANDOM % ($epoch_tageslicht_stop-$epoch_tageslicht_start))+$(date -d "+ $daycount day 0:00" +%s)+$secondstodaystart)) > $file_raintoday
       echo $((($RANDOM % 15)*60+300)) > $file_rainduration
-      rain_probability=$(($RANDOM % 20))
+      rain_probability=$(($RANDOM % 15))
     fi
     daycount=$(($daycount+1))
   done
