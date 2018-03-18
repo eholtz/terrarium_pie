@@ -82,62 +82,8 @@ julian calcjtimes(time_t t)
     return cjt;
 }
 
-static void skeleton_daemon()
-{
-    pid_t pid;
-
-    /* Fork off the parent process */
-    pid = fork();
-
-    /* An error occurred */
-    if (pid < 0)
-        exit(EXIT_FAILURE);
-
-    /* Success: Let the parent terminate */
-    if (pid > 0)
-        exit(EXIT_SUCCESS);
-
-    /* On success: The child process becomes session leader */
-    if (setsid() < 0)
-        exit(EXIT_FAILURE);
-
-    /* Catch, ignore and handle signals */
-    //TODO: Implement a working signal handler */
-    signal(SIGCHLD, SIG_IGN);
-    signal(SIGHUP, SIG_IGN);
-
-    /* Fork off for the second time*/
-    pid = fork();
-
-    /* An error occurred */
-    if (pid < 0)
-        exit(EXIT_FAILURE);
-
-    /* Success: Let the parent terminate */
-    if (pid > 0)
-        exit(EXIT_SUCCESS);
-
-    /* Set new file permissions */
-    umask(0);
-
-    /* Change the working directory to the root directory */
-    /* or another appropriated directory */
-    chdir("/");
-
-    /* Close all open file descriptors */
-    int x;
-    for (x = sysconf(_SC_OPEN_MAX); x >= 0; x--)
-    {
-        close(x);
-    }
-
-    /* Open the log file */
-    openlog("lightcontroldaemon", LOG_PID, LOG_DAEMON);
-}
-
 int main()
 {
-    //skeleton_daemon();
 
     time_t t = time(0);
     struct tm *today_time = new tm;
@@ -177,11 +123,13 @@ int main()
         if ((current_julian_time > lightson) && (current_julian_time < lightsoff))
         {
             cout << "Lights should be on" << endl;
+            system("/usr/bin/gpio write 8 1");
             //syslog(LOG_NOTICE,"lights should be on");
         }
         else
         {
             cout << "Lights should be off" << endl;
+            system("/usr/bin/gpio write 8 0");
             //syslog(LOG_NOTICE,"lights should be off");
         }
 
@@ -213,6 +161,7 @@ int main()
         {
             cout << "Turn dawn/dusk lights off" << endl;
             riseordawn = 0;
+            system("/usr/bin/gpio write 9 0");
         }
         if (red > 1)
             red = 1;
@@ -229,14 +178,21 @@ int main()
         if (riseordawn)
         {
             cout << "Setting r/g/b to " << red << "/" << green << "/" << blue << endl;
+            system("/usr/bin/gpio write 9 1");
+            ofstream filehandler;
+            string filename = "/dev/pi-blaster";
+            filehandler.open(filename.c_str());
+            if (filehandler.is_open())
+            {
+                filehandler << "14=" << red << endl;
+                filehandler << "15=" << green << endl;
+                filehandler << "18=" << blue << endl;
+                filehandler.close();
+            }
         }
 
-        //syslog(LOG_NOTICE, "Light control daemon started.");
         sleep(10);
     }
-
-    //syslog(LOG_NOTICE, "Light control daemon terminated.");
-    //closelog();
 
     return EXIT_SUCCESS;
 }
