@@ -1,8 +1,14 @@
 /*
- * daemonize.c
- * This example daemonizes a process, writes a few log messages,
- * sleeps 20 seconds and terminates afterwards.
- */
+this program controls the lights in the terrarium
+it should be started at startup and not be stopped. so there should
+be some systemd unit file for that.
+
+[Unit]
+Description=Light control daemon
+
+[Service]
+ExecStart=<program>
+*/
 
 #include <fstream>
 #include <iostream>
