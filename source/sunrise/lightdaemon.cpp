@@ -101,12 +101,17 @@ int main()
     double rperc = 1 / riseduration_red;
     double gperc = 1 / riseduration_green;
     double bperc = 1 / riseduration_blue;
-    double red, green, blue, new_red, new_green, new_blue;
-    bool riseordawn;
+    double red, green, blue;
     double sunrise, sunset, lightson, lightsoff, dawn, dusk;
     double current_julian_time;
+    bool riseordawn;
+    bool daylight_pin_status=0;
+    bool duskdawn_pin_status=0;
+    bool settings_changed=0;
+    char buffer[50];
 
     cout << "starting up" << endl;
+
 
     while (1)
     {
@@ -122,27 +127,31 @@ int main()
             lightsoff = sunset - riseduration / 2;
             dawn = sunrise - riseduration / 2; // dawn = the start of the first light
             dusk = sunset + riseduration / 2;  // dusk = the end of the last light
+            settings_changed = 1;
         }
 
         current_julian_time = (current_time->tm_hour * 3600 + current_time->tm_min * 60 + current_time->tm_sec) * sstep;
 
         if ((current_julian_time > lightson) && (current_julian_time < lightsoff))
         {
-            cout << "Lights should be on" << endl;
-            system("/usr/bin/gpio write 8 1");
-            //syslog(LOG_NOTICE,"lights should be on");
+            if (!daylight_pin_status) {
+                cout << "Switching day light on" << endl;
+                daylight_pin_status=1;
+                settings_changed=1;
+            }
         }
         else
         {
-            cout << "Lights should be off" << endl;
-            system("/usr/bin/gpio write 8 0");
-            //syslog(LOG_NOTICE,"lights should be off");
+            if (daylight_pin_status) {
+                cout << "Switching day light off." << endl;
+                daylight_pin_status=0;
+                settings_changed=1;
+            }
         }
 
         if ((current_julian_time >= dawn) && (current_julian_time <= lightson))
         {
             // we are in dawn mode
-            cout << "Turn dawn lights on" << endl;
             riseordawn = 1;
             red = (current_julian_time - dawn) * rperc;
             if (current_julian_time >= (dawn + (riseduration_red - riseduration_green)))
@@ -157,7 +166,6 @@ int main()
         else if ((current_julian_time <= dusk) && (current_julian_time >= lightsoff))
         {
             // we are in dusk mode
-            cout << "Turn dusk lights on" << endl;
             riseordawn = 1;
             red = 1 - ((current_julian_time - (dusk - riseduration_red)) * rperc);
             green = 1 - ((current_julian_time - (dusk - riseduration_red)) * gperc);
@@ -165,26 +173,36 @@ int main()
         }
         else
         {
-            cout << "Turn dawn/dusk lights off" << endl;
             riseordawn = 0;
-            system("/usr/bin/gpio write 9 0");
+            if (duskdawn_pin_status) {
+                cout << "Switching dawn/dusk light off" << endl;
+                settings_changed = 1;
+                duskdawn_pin_status = 0;
+            }
         }
-        if (red > 1)
-            red = 1;
-        if (red < 0)
-            red = 0;
-        if (green > 1)
-            green = 1;
-        if (green < 0)
-            green = 0;
-        if (blue > 1)
-            blue = 1;
-        if (blue < 0)
-            blue = 0;
+
+        if (red > 1) red = 1;
+        if (red < 0) red = 0;
+        if (green > 1) green = 1;
+        if (green < 0) green = 0;
+        if (blue > 1) blue = 1;
+        if (blue < 0) blue = 0;
+
         if (riseordawn)
         {
             cout << "Setting r/g/b to " << red << "/" << green << "/" << blue << endl;
-            system("/usr/bin/gpio write 9 1");
+            if (!duskdawn_pin_status) {
+                cout << "Switching dawn/dusk light on" << endl;
+                duskdawn_pin_status = 1;
+            }
+            settings_changed=1;
+        }
+
+        if (settings_changed) {
+            snprintf(buffer,sizeof(buffer),"/usr/bin/gpio write 8 %d",daylight_pin_status);
+            system(buffer);
+            snprintf(buffer,sizeof(buffer),"/usr/bin/gpio write 9 %d",duskdawn_pin_status);
+            system(buffer);
             ofstream filehandler;
             string filename = "/dev/pi-blaster";
             filehandler.open(filename.c_str());
@@ -199,6 +217,6 @@ int main()
 
         sleep(10);
     }
-
+    cout << "exiting." << endl;
     return EXIT_SUCCESS;
 }
