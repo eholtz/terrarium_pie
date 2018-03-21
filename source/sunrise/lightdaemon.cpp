@@ -105,13 +105,12 @@ int main()
     double sunrise, sunset, lightson, lightsoff, dawn, dusk;
     double current_julian_time;
     bool riseordawn;
-    bool daylight_pin_status=0;
-    bool duskdawn_pin_status=0;
-    bool settings_changed=0;
+    bool daylight_pin_status = 0;
+    bool duskdawn_pin_status = 0;
+    bool settings_changed = 0;
     char buffer[50];
 
     cout << "starting up" << endl;
-
 
     while (1)
     {
@@ -119,6 +118,7 @@ int main()
         current_time = localtime(&t);
         if (current_time->tm_mday != today_time->tm_mday)
         {
+            cout << "New daytime calculations" << endl;
             today_time = current_time;
             jt = calcjtimes(t);
             sunrise = (jt.jrise - .5 - floor(jt.jrise - .5)) + mstep * 60;
@@ -128,24 +128,28 @@ int main()
             dawn = sunrise - riseduration / 2; // dawn = the start of the first light
             dusk = sunset + riseduration / 2;  // dusk = the end of the last light
             settings_changed = 1;
+            cout << "sunrise" << sunrise << endl;
+            cout << "sunset " << sunset << endl;
         }
 
         current_julian_time = (current_time->tm_hour * 3600 + current_time->tm_min * 60 + current_time->tm_sec) * sstep;
 
         if ((current_julian_time > lightson) && (current_julian_time < lightsoff))
         {
-            if (!daylight_pin_status) {
+            if (!daylight_pin_status)
+            {
                 cout << "Switching day light on" << endl;
-                daylight_pin_status=1;
-                settings_changed=1;
+                daylight_pin_status = 1;
+                settings_changed = 1;
             }
         }
         else
         {
-            if (daylight_pin_status) {
-                cout << "Switching day light off." << endl;
-                daylight_pin_status=0;
-                settings_changed=1;
+            if (daylight_pin_status)
+            {
+                cout << "Switching day light off" << endl;
+                daylight_pin_status = 0;
+                settings_changed = 1;
             }
         }
 
@@ -174,44 +178,56 @@ int main()
         else
         {
             riseordawn = 0;
-            if (duskdawn_pin_status) {
+            if (duskdawn_pin_status)
+            {
                 cout << "Switching dawn/dusk light off" << endl;
                 settings_changed = 1;
                 duskdawn_pin_status = 0;
             }
         }
 
-        if (red > 1) red = 1;
-        if (red < 0) red = 0;
-        if (green > 1) green = 1;
-        if (green < 0) green = 0;
-        if (blue > 1) blue = 1;
-        if (blue < 0) blue = 0;
+        if (red > 1)
+            red = 1;
+        if (red < 0)
+            red = 0;
+        if (green > 1)
+            green = 1;
+        if (green < 0)
+            green = 0;
+        if (blue > 1)
+            blue = 1;
+        if (blue < 0)
+            blue = 0;
 
         if (riseordawn)
         {
             cout << "Setting r/g/b to " << red << "/" << green << "/" << blue << endl;
-            if (!duskdawn_pin_status) {
+            if (!duskdawn_pin_status)
+            {
                 cout << "Switching dawn/dusk light on" << endl;
                 duskdawn_pin_status = 1;
             }
-            settings_changed=1;
+            settings_changed = 1;
         }
 
-        if (settings_changed) {
-            snprintf(buffer,sizeof(buffer),"/usr/bin/gpio write 8 %d",daylight_pin_status);
+        if (settings_changed)
+        {
+            snprintf(buffer, sizeof(buffer), "/usr/bin/gpio write 8 %d", daylight_pin_status);
             system(buffer);
-            snprintf(buffer,sizeof(buffer),"/usr/bin/gpio write 9 %d",duskdawn_pin_status);
+            snprintf(buffer, sizeof(buffer), "/usr/bin/gpio write 9 %d", duskdawn_pin_status);
             system(buffer);
-            ofstream filehandler;
-            string filename = "/dev/pi-blaster";
-            filehandler.open(filename.c_str());
-            if (filehandler.is_open())
+            if ((red > 0) && (red < 1))
             {
-                filehandler << "14=" << red << endl;
-                filehandler << "15=" << green << endl;
-                filehandler << "18=" << blue << endl;
-                filehandler.close();
+                ofstream filehandler;
+                string filename = "/dev/pi-blaster";
+                filehandler.open(filename.c_str());
+                if (filehandler.is_open())
+                {
+                    filehandler << "14=" << red << endl;
+                    filehandler << "15=" << green << endl;
+                    filehandler << "18=" << blue << endl;
+                    filehandler.close();
+                }
             }
         }
 
