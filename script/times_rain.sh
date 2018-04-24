@@ -16,7 +16,7 @@ if [ ! -f $file_raintoday ] ; then
   daycount=0
   epochmidnight=$(date -d "today 0:00" +%s)
   secondstodaystart=$(($epoch_tageslicht_start-$epochmidnight))
-  rain_probability=$(($RANDOM % 50))
+  rain_probability=$(($RANDOM % 15))
   while [ $(date -d "+ $daycount day" +%m) -eq $thismonth ]; do
     file_rainduration="$dir_volatile/rain_duration_$(date -d "+ $daycount day" +%Y%m%d)"
     file_raintoday="$dir_volatile/rain_$(date -d "+ $daycount day" +%Y%m%d)"
@@ -27,10 +27,10 @@ if [ ! -f $file_raintoday ] ; then
     if [ "$res" -gt "$rain_probability" ] ; then
       echo "0" > $file_raintoday
       echo "0" > $file_rainduration
-      rain_probability=$(($rain_probability + 10))
+      rain_probability=$(($rain_probability + 7))
     else
       echo $((($RANDOM % ($epoch_tageslicht_stop-$epoch_tageslicht_start))+$(date -d "+ $daycount day 0:00" +%s)+$secondstodaystart)) > $file_raintoday
-      echo $((($RANDOM % 15)*60+300)) > $file_rainduration
+      echo $((($RANDOM % 15)*60+200)) > $file_rainduration
       rain_probability=$(($RANDOM % 15))
     fi
     daycount=$(($daycount+1))
