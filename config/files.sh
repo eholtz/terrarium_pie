@@ -61,7 +61,7 @@ relaispins[4]=0
 relaispins[5]=2
 relaispins[6]=3
 relaispins[7]=12
-relaispins[8]=14
+relaispins[8]=13
 motorpins[1]=24
 motorpins[2]=25
 relaispinname[1]="Tageslicht"
@@ -71,7 +71,7 @@ relaispinname[4]="Spot Ecke"
 relaispinname[5]="Heizschlauch"
 relaispinname[6]="Kameraladegerät"
 relaispinname[7]="Regenmaschine"
-relaispinname[8]="Undefined"
+relaispinname[8]="Lüfter"
 motorpinname[1]="Front runter"
 motorpinname[2]="Front rauf"
 for i in "${!relaispinname[@]}" ; do

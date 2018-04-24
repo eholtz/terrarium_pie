@@ -2,7 +2,7 @@
 
 # move 12 minutes
 movetime_up=$((13*60))
-movetime_down=$((11*60))
+movetime_down=$((12*60))
 
 # so lange current > start daemmerung und current < ( start daemmerung + movetime )
 
