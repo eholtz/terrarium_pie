@@ -82,15 +82,9 @@ int th(void)
 		{
 			temp[y] = gettemp();
 			humi[y] = gethumi();
-			sumsd = calcsd(temp,15,50) + calcsd(humi,40,100);
-			if (sumsd < 1)
-			{
-				x = maxtries;
-			}
-			//			printf("std dev temp %f\n",calcsd(temp));
-			//			printf("std dev humi %f\n",calcsd(humi));
 		}
-	if (sumsd < 1)
+			sumsd = calcsd(temp,15,50) + calcsd(humi,40,100);
+		if (sumsd < 1)
 	{
 		printf("%0.2f\n%0.2f\n", calcmean(temp,15,50), calcmean(humi,40,100));
 		return 0;
@@ -106,20 +100,22 @@ float calcmean(float data[], float min, float max)
 {
 	float sum = 0.0, mean = 0.0;
 	int i = 0;
+	int c = 0;
 	for (i = 0; i < NUMMEASURES; i++)
 	{
-		if ((data[i]>min) && (data[i]>max)) {
+		if ((data[i]>min) && (data[i]<max)) {
 			sum += data[i];
+			c++;
 		}
-		//		printf("data %f\n",data[i]);
 	}
-	return sum / NUMMEASURES;
+	return sum / c;
 }
 
 float calcsd(float data[], float min, float max)
 {
 	float sum = 0.0, mean = 0.0, sd = 0.0;
 	int i = 0;
+	int c = 0;
 	mean = calcmean(data,min,max);
 	//	printf("sum %f\n",sum);
 	//	printf("mean %f\n",mean);
@@ -127,17 +123,18 @@ float calcsd(float data[], float min, float max)
 	{
 		if ((data[i]<max) && (data[i]>min)) {
 			sd += pow(data[i] - mean, 2);
+			c++;
 		}
 	}
-	return sqrt(sd / NUMMEASURES);
+	return sqrt(sd / c);
 }
 
 int main()
 {
 	//Initialise the Raspberry Pi GPIO
-	if (!bcm2835_init())
+	if (!bcm2835_init()) {
 		return 1;
-
+} else {
 	return th();
-	//  return printTempAndHumidity();
+}
 }
