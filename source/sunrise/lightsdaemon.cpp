@@ -2,10 +2,10 @@
 #include <iostream>
 #include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string>
 #include <time.h>
 #include <unistd.h>
-#include <stdlib.h>
 
 using namespace std;
 
@@ -33,8 +33,7 @@ string j2h(double jd) {
   return buffer;
 }
 
-void setlights(double dayhour, double dawn, double rise, double set,
-               double dusk) {
+void setlights(double dayhour, double dawn, double rise, double set, double dusk) {
   bool lights;
   bool riseordawn;
   double riseduration_red = riseduration;
@@ -58,12 +57,10 @@ void setlights(double dayhour, double dawn, double rise, double set,
     riseordawn = 1;
     red = (dayhour - dawn) * rperc;
     if (dayhour >= (dawn + (riseduration_red - riseduration_green))) {
-      green =
-          (dayhour - (dawn + (riseduration_red - riseduration_green))) * gperc;
+      green = (dayhour - (dawn + (riseduration_red - riseduration_green))) * gperc;
     }
     if (dayhour >= (dawn + (riseduration_red - riseduration_blue))) {
-      blue =
-          (dayhour - (dawn + (riseduration_red - riseduration_blue))) * bperc;
+      blue = (dayhour - (dawn + (riseduration_red - riseduration_blue))) * bperc;
     }
   } else if ((dayhour >= (set - mstep)) && (dayhour <= dusk)) {
     // or are we in sunset
@@ -104,13 +101,13 @@ void setlights(double dayhour, double dawn, double rise, double set,
        */
 
   // write the calculated values to the system
-  // the pins are hardcoded - that's not very 
+  // the pins are hardcoded - that's not very
   // nice, but it works...
   system("/usr/bin/gpio mode 8 out");
   system("/usr/bin/gpio mode 9 out");
-  snprintf(buffer, sizeof(buffer), "/usr/bin/gpio write 8 %d",(int)(lights));
+  snprintf(buffer, sizeof(buffer), "/usr/bin/gpio write 8 %d", (int)(lights));
   system(buffer);
-  snprintf(buffer, sizeof(buffer), "/usr/bin/gpio write 9 %d",(int)(riseordawn));
+  snprintf(buffer, sizeof(buffer), "/usr/bin/gpio write 9 %d", (int)(riseordawn));
   system(buffer);
   if ((red > 0) && (red < 1)) {
     ofstream filehandler;
@@ -146,8 +143,7 @@ struct julian calcjtimes(time_t t) {
   int d = current_time->tm_mday;
   int a = floor((y) / 100);
   double b = 2 - a + floor(a / 4);
-  double jd =
-      floor(365.25 * (y + 4716)) + floor(30.6001 * (m + 1)) + d + b - 1524.5;
+  double jd = floor(365.25 * (y + 4716)) + floor(30.6001 * (m + 1)) + d + b - 1524.5;
 
   // calculation of sunrise based on
   // https://en.wikipedia.org/wiki/Sunrise_equation
@@ -158,20 +154,17 @@ struct julian calcjtimes(time_t t) {
   // mean anomaly
   double ma = fmod((357.5291 + 0.98560028 * js), 360);
   // equation of the center
-  double c = 1.9148 * sin(ma * torad) + 0.02 * sin(2 * ma * torad) +
-             0.0003 * sin(3 * ma * torad);
+  double c = 1.9148 * sin(ma * torad) + 0.02 * sin(2 * ma * torad) + 0.0003 * sin(3 * ma * torad);
   // ecliptic longitude
   double l = fmod((ma + c + 180 + 102.9372), 360);
   // solar transit - it seems they have forgotten the 2451545.5 on the wikipedia
   // page. or i did not understand correctly.
-  double jt =
-      2451545.5 + js + 0.0053 * sin(ma * torad) - 0.0069 * sin(2 * l * torad);
+  double jt = 2451545.5 + js + 0.0053 * sin(ma * torad) - 0.0069 * sin(2 * l * torad);
   // declination of the sun
   double de = asin(sin(l * torad) * sin(23.44 * torad)) * todeg;
   // hour angle
-  double w = acos((sin(-0.83 * torad) - sin(lam * torad) * sin(de * torad)) /
-                  (cos(lam * torad) * cos(de * torad))) *
-             todeg;
+  double w =
+      acos((sin(-0.83 * torad) - sin(lam * torad) * sin(de * torad)) / (cos(lam * torad) * cos(de * torad))) * todeg;
 
   double jset = jt + w / 360;
   double jrise = jt - w / 360;
@@ -227,6 +220,8 @@ int main() {
       lightsoff = sunset - riseduration / 2;
       dawn = sunrise - riseduration / 2;
       dusk = sunset + riseduration / 2;
+
+      // write everything to the log
       cout << "name        julian time | utc" << endl;
       cout << "sunrise:    " << sunrise << "|" << j2h(sunrise) << endl;
       cout << "sunset:     " << sunset << "|" << j2h(sunset) << endl;
@@ -234,13 +229,25 @@ int main() {
       cout << "lights off: " << lightsoff << "|" << j2h(lightsoff) << endl;
       cout << "dawn start: " << dawn << "|" << j2h(dawn) << endl;
       cout << "dusk stop:  " << dusk << "|" << j2h(dusk) << endl;
+
+      // write everything zo a file
+      ofstream filehandler;
+      string filename = "/dev/shm/terrarium_times";
+      filehandler.open(filename.c_str());
+      if (filehandler.is_open()) {
+        filehandler << "sunrise " << sunrise << " " << j2h(sunrise) << endl;
+        filehandler << "sunset " << sunrise << " " << j2h(sunset) << endl;
+        filehandler << "start dawn " << sunrise << " " << j2h(dawn) << endl;
+        filehandler << "start daylight " << sunrise << " " << j2h(lightson) << endl;
+        filehandler << "stop daylight " << sunrise << " " << j2h(lightsoff) << endl;
+        filehandler << "stop dusk " << sunrise << " " << j2h(dusk) << endl;
+        filehandler.close();
+      }
     }
     // sleep for a second
     usleep(1000000);
     // set the lights
-    setlights(nowt->tm_hour * hstep + nowt->tm_min * mstep +
-                  nowt->tm_sec * sstep,
-              dawn, sunrise, sunset, dusk);
+    setlights(nowt->tm_hour * hstep + nowt->tm_min * mstep + nowt->tm_sec * sstep, dawn, sunrise, sunset, dusk);
   }
   // this will never be reached, but anyway
   return 0;
