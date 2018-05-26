@@ -237,10 +237,10 @@ int main() {
       if (filehandler.is_open()) {
         filehandler << "sunrise " << sunrise << " " << j2h(sunrise) << endl;
         filehandler << "sunset " << sunrise << " " << j2h(sunset) << endl;
-        filehandler << "start dawn " << sunrise << " " << j2h(dawn) << endl;
-        filehandler << "start daylight " << sunrise << " " << j2h(lightson) << endl;
-        filehandler << "stop daylight " << sunrise << " " << j2h(lightsoff) << endl;
-        filehandler << "stop dusk " << sunrise << " " << j2h(dusk) << endl;
+        filehandler << "start_dawn " << sunrise << " " << j2h(dawn) << endl;
+        filehandler << "start_daylight " << sunrise << " " << j2h(lightson) << endl;
+        filehandler << "stop_daylight " << sunrise << " " << j2h(lightsoff) << endl;
+        filehandler << "stop_dusk " << sunrise << " " << j2h(dusk) << endl;
         filehandler.close();
       }
     }
