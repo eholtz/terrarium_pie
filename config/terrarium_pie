@@ -1,8 +1,0 @@
-# run every minute :-)
-#*   * * * * root cd /home/eholtz/terrarium_pie/control && ./control_terr.sh > /dev/null
-*   *  * * * root /home/eholtz/terrarium_pie/script/master.sh &> /dev/null
-*   *  * * * root /home/eholtz/terrarium_pie/script/update_rrd.sh &> /dev/null
-*/5 *  * * * root /home/eholtz/terrarium_pie/script/backup.sh
-*/7 *  * * * root /home/eholtz/terrarium_pie/script/graph_rrd.sh &> /dev/null
-47  11 * * * root /home/eholtz/terrarium_pie/script/cleanup.sh
-23  23 * * * root /home/eholtz/terrarium_pie/script/create_gallery.sh
