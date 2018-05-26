@@ -29,7 +29,7 @@ source $dir_script/times_rain.sh &>> $runlog
 echo "Read the sensors ... " >> $runlog
 source $dir_script/last_sensor_data.sh &>> $runlog
 
-echo "Control the light ... " >> $runlog
+# echo "Control the light ... " >> $runlog
 source $dir_script/control_light.sh &>> $runlog
 
 echo "Control the spots ... " >> $runlog
@@ -40,6 +40,9 @@ source $dir_script/control_rain.sh &>> $runlog
 
 echo "Control the heating element ... " >> $runlog
 source $dir_script/control_heating.sh &>> $runlog
+
+echo "Control the blinds ..." >> $runlog
+# source $dir_script/control_blinds.sh &>> $runlog
 
 echo "Control misc things ..." >> $runlog
 source $dir_script/control_misc.sh &>> $runlog

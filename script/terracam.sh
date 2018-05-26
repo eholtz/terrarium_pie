@@ -1,6 +1,6 @@
 #!/bin/bash
 
-timeout 20 curl -m 18 -o $dir_tmp/camtmp.jpg http://10.0.0.70:8080/photoaf.jpg
+timeout 40 curl -m 38 -o $dir_tmp/camtmp.jpg http://10.0.0.70:8080/photoaf.jpg
 if [ $? -eq 0 ]; then
 	ctz=$TZ
 	TZ="Europe/Berlin"

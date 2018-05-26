@@ -11,7 +11,7 @@ for i in "${sensors[@]}" ; do
   fi
 
   # now that we are sure to have the sensor file read the values
-  timeout 10 "$dir_bin/read_sensor_$i" | tr '\n' ' ' > $dir_volatile/data_sensor_$i
+  timeout 20 "$dir_bin/read_sensor_$i" | tr '\n' ' ' > $dir_volatile/data_sensor_$i
   read temp humi < $dir_volatile/data_sensor_$i
   timeout 10 rrdtool update $sensorfile N:$temp:$humi
 
