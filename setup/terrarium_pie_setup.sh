@@ -22,12 +22,14 @@ sudo systemctl start pi-blaster
 cd /tmp/setup
 
 # demon for the lights
+cd $curd/../source/sunrise/
+clang++ -Wall -O2 lightsdaemon.cpp -o ../../bin/lightsdaemon
 cat > /tmp/lightsdaemon.service << EOF
 [Unit]
 Description=Lights control daemon
 
 [Service]
-ExecStart=PATH/lightsdaemon
+ExecStart=PATH
 
 [Install]
 WantedBy=getty.target
@@ -53,7 +55,7 @@ watchdog-device = /dev/watchdog
 realtime        = yes
 priority        = 1
 EOF
-sudo mv /etc/watchdog.conf /etc/watchdog.conf
+sudo mv /tmp/watchdog.conf /etc/watchdog.conf
 sudo systemctl enable watchdog
 sudo systemctl start watchdog
 
