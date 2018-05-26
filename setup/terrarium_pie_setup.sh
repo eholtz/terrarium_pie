@@ -11,7 +11,7 @@ sudo apt -y install clang
 git clone https://github.com/sarfata/pi-blaster.git
 cd pi-blaster
 # my setup for the pins 14,15,18
-sed "/static.uint8_t.known_pins.MAX_CHANNELS./,/;/c\
+sed -i "/static.uint8_t.known_pins.MAX_CHANNELS./,/;/c\
 static uint8_t known_pins[MAX_CHANNELS] = { 14, 15, 18 };" pi-blaster.c
 ./autogen.sh
 ./configure
@@ -32,7 +32,7 @@ ExecStart=PATH/lightsdaemon
 [Install]
 WantedBy=getty.target
 EOF
-sed -i "s;PATH;$(readlink -f $curd/../bin/lightsdaemon);" /etc/systemd/system/lightsdaemon.service
+sed -i "s;PATH;$(readlink -f $curd/../bin/lightsdaemon);" /tmp/lightsdaemon.service
 sudo mv /tmp/lightsdaemon.service /etc/systemd/system/lightsdaemon.service
 sudo systemctl daemon-reload
 sudo systemctl enable lightsdaemon
@@ -57,6 +57,7 @@ sudo mv /etc/watchdog.conf /etc/watchdog.conf
 sudo systemctl enable watchdog
 sudo systemctl start watchdog
 
+sudo apt -y autoremove
 
 
 
