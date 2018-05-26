@@ -7,7 +7,7 @@ cd /tmp/setup
 
 # install pi-blaster
 sudo apt -y install autoconf
-sudo apt -y install git
+sudo apt -y install clang
 git clone https://github.com/sarfata/pi-blaster.git
 cd pi-blaster
 # my setup for the pins 14,15,18
