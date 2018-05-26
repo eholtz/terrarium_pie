@@ -73,6 +73,7 @@ echo "<p><a href=\"pic.html\">filtered pictures</a></p>" >> $dir_html/index.html
 echo "<pre>" >> $dir_html/index.html
 cat "${file_status}" >> $dir_html/index.html
 echo "</pre>" >> $dir_html/index.html
+echo "<hr>" >> $dir_html/index.html
 for i in $timespans ; do
   span=$(echo $i | cut -d '_' -f 2)
   echo "<h2 onclick=\"f_${span}()\">Timespan ${span}</h2>" >> $dir_html/index.html
