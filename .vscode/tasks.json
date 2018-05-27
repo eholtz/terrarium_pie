@@ -8,7 +8,10 @@
             "type": "shell",
             "command": "clang++",
             "args": [
-                "-Wall", "${workspaceFolder}/source/sunrise/timecontrol.cpp","-o","${workspaceFolder}/source/sunrise/timecontrol"
+                "-Wall",
+                "${workspaceFolder}/source/lightsdaemon.cpp",
+                "-o",
+                "${workspaceFolder}/bin/lightsdaemon"
             ],
             "group": {
                 "kind": "build",
