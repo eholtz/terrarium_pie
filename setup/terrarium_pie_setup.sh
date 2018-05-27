@@ -45,7 +45,7 @@ cd /tmp/setup
 
 # demon for the lights
 sudo apt -y install wiringpi
-cd $curd/../source/sunrise/
+cd $curd/../source
 clang++ -Wall -O2 lightsdaemon.cpp -o ../../bin/lightsdaemon
 cat > /tmp/lightsdaemon.service << EOF
 [Unit]
