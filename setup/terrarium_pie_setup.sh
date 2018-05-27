@@ -55,9 +55,9 @@ sudo systemctl start pi-blaster
 cd /tmp/setup
 
 # demons for the lights
-daemons="lightsdaemon pincontroldaemon"
 sudo apt -y install wiringpi
 cd $curd/../source
+daemons=$(ls *daemon)
 cat > /tmp/template.service << EOF
 [Unit]
 Description=Terrarium DAEMON
