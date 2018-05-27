@@ -1,8 +1,5 @@
 those are my pins
 
-
-
-
   sht11 power                  3.3v power        1
   relais 0-1 / daylight tubes  bcm 2 / wpi 8     3
   relais 0-2 / 12v trafo       bcm 3 / wpi 9     5
@@ -24,10 +21,9 @@ those are my pins
                                bcm 26 / wpi 25  37
                                ground           39
 
-
-  2  5v power          relais card power
+  2  5v power          5v power rail for relais card 
   4  5v power
-  6  ground
+  6  ground            ground rail (relais card, )
   8  bcm 14 / wpi 15   rgb led red
   10 bcm 15 / wpi 16   rgb led green
   12 bcm 18 / wpi 1    rgb led blue
