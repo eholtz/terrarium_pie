@@ -1,6 +1,6 @@
 #!/bin/bash
 
-curd=$(dirname $0)
+curd=$(readlink -f $(dirname $0))
 
 mkdir -p /tmp/setup
 cd /tmp/setup
