@@ -17,6 +17,15 @@ cd /tmp/setup
 # install things i want
 sudo apt -y install tmux
 
+# install and configure chrony
+# the makestep 1 -1 will not slew the clock if the
+# difference is more than one second anytime
+# and not just at the startup
+sudo apt -y install chrony
+sudo sed -i "s/^makestep.*/makestep 1 -1/" /etc/chrony/chrony.conf 
+sudo systemctl enable chrony
+sudo systemctl restart chrony
+
 # install pi-blaster
 sudo apt -y install autoconf
 sudo apt -y install clang
