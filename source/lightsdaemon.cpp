@@ -131,6 +131,8 @@ void setlights(double dayhour, double dawn, double rise, double set, double dusk
       filehandler << "15=" << green << endl;
       filehandler << "18=" << blue << endl;
       filehandler.close();
+    } else {
+      cout << "ERROR: could not write to " << filename << endl;
     }
   }
 }
@@ -243,7 +245,7 @@ int main() {
       cout << "dawn start: " << dawn << "|" << j2h(dawn) << endl;
       cout << "dusk stop:  " << dusk << "|" << j2h(dusk) << endl;
 
-      // write everything zo a file
+      // write everything to a file
       ofstream filehandler;
       string filename = "/dev/shm/terrarium_times";
       filehandler.open(filename.c_str());
@@ -257,8 +259,8 @@ int main() {
         filehandler.close();
       }
     }
-    // sleep for a second
-    usleep(1000000);
+    // sleep for 5 seconds
+    usleep(5000000);
     // set the lights
     setlights(nowt->tm_hour * hstep + nowt->tm_min * mstep + nowt->tm_sec * sstep, dawn, sunrise, sunset, dusk);
   }
