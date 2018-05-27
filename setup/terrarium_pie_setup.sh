@@ -42,7 +42,7 @@ sudo apt -y install autoconf
 sudo apt -y install clang
 git clone https://github.com/sarfata/pi-blaster.git
 cd pi-blaster
-git checkout -- pi-plaster.c
+git checkout -- pi-blaster.c
 # my setup for the pins 14,15,18
 sed -i "/static.uint8_t.known_pins.MAX_CHANNELS./,/;/c\
 static uint8_t known_pins[MAX_CHANNELS] = { 14, 15, 18 };" pi-blaster.c
