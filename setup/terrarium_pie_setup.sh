@@ -19,7 +19,7 @@ echo "tmpfs /var/log tmpfs size=16M 0 0" >> /tmp/fstab
 echo "tmpfs /tmp tmpfs size=128M 0 0" >> /tmp/fstab
 sudo chown root: /tmp/fstab
 sudo mv /tmp/fstab /etc/
-mount -a
+sudo mount -a
 
 # create directories
 mkdir -p /tmp/setup
@@ -57,7 +57,7 @@ cd /tmp/setup
 # demons for the lights
 sudo apt -y install wiringpi
 cd $curd/../source
-daemons=$(ls *daemon)
+daemons=$(ls *daemon.cpp)
 cat > /tmp/template.service << EOF
 [Unit]
 Description=Terrarium DAEMON
@@ -70,14 +70,16 @@ Restart=always
 WantedBy=getty.target
 EOF
 for d in $daemons ; do
+  d=$(echo $d | sed "s/\..*$//")
+  echo "Compiling and installing $d"
   clang++ -Wall -O2 $d.cpp -o ../bin/$d
   cp /tmp/template.service /tmp/$d.service
-  sed -i "s;PATH;$(readlink -f $curd/../bin/lightsdaemon);" /tmp/$d.service
+  sed -i "s;PATH;$(readlink -f $curd/../bin/$d);" /tmp/$d.service
   sed -i "s;DAEMON;$d;" /tmp/$d.service
   sudo mv /tmp/$d.service /etc/systemd/system/$d.service
   sudo systemctl daemon-reload
   sudo systemctl enable $d
-  sudo systemctl start $d
+  sudo systemctl restart $d
 done
 
 # 24/7 according to https://www.datenreise.de/raspberry-pi-stabiler-24-7-dauerbetrieb/

@@ -43,7 +43,7 @@ int main() {
       ifstream pininput(buffer);
       if (pininput.is_open()) {
         getline(pininput, line);
-        if (line.compare("1")) {
+        if (line.compare(0,1,"1")==0) {
           state = 1;
         } else {
           state = 0;
@@ -53,7 +53,7 @@ int main() {
         pininput.close();
       }
     }
-    // sleep for 10 seconds
-    usleep(10000000);
+    // sleep for 5 seconds
+    usleep(5000000);
   }
 }
