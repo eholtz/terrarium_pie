@@ -193,7 +193,7 @@ int main() {
   cout << "starting up..." << endl;
   time_t now = time(0);
   struct tm *nowt;
-  int nowd = localtime(&now)->tm_yday;
+  int nowd = gmtime(&now)->tm_yday;
   int curd = nowd + 1;
   struct julian jt;
 
@@ -259,10 +259,10 @@ int main() {
         filehandler.close();
       }
     }
+    // set the lights
+    setlights(nowt->tm_hour * hstep + nowt->tm_min * mstep + nowt->tm_sec * sstep, dawn, lightson, lightsoff, dusk);
     // sleep for 5 seconds
     usleep(5000000);
-    // set the lights
-    setlights(nowt->tm_hour * hstep + nowt->tm_min * mstep + nowt->tm_sec * sstep, dawn, sunrise, sunset, dusk);
   }
   // this will never be reached, but anyway
   return 0;
