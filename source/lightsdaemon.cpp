@@ -43,7 +43,8 @@ void setlights(double dayhour, double dawn, double rise, double set, double dusk
   double gperc = 1 / riseduration_green;
   double bperc = 1 / riseduration_blue;
   double red = 0, green = 0, blue = 0;
-  char buffer[128];
+  ofstream filehandler;
+  string filename;
 
   // first check if the main lights should be turned on or off
   if ((dayhour < rise) || (dayhour > set)) {
@@ -103,15 +104,27 @@ void setlights(double dayhour, double dawn, double rise, double set, double dusk
   // write the calculated values to the system
   // the pins are hardcoded - that's not very
   // nice, but it works...
-  system("/usr/bin/gpio mode 8 out");
-  system("/usr/bin/gpio mode 9 out");
-  snprintf(buffer, sizeof(buffer), "/usr/bin/gpio write 8 %d", (int)(lights));
-  system(buffer);
-  snprintf(buffer, sizeof(buffer), "/usr/bin/gpio write 9 %d", (int)(riseordawn));
-  system(buffer);
+
+  filename = "/dev/shm/pin_8";
+  filehandler.open(filename.c_str());
+  if (filehandler.is_open()) {
+    filehandler << (int)lights << endl;
+    filehandler.close();
+  } else {
+    cout << "ERROR: could not write to " << filename << endl;
+  }
+
+  filename = "/dev/shm/pin_9";
+  filehandler.open(filename.c_str());
+  if (filehandler.is_open()) {
+    filehandler << (int)riseordawn << endl;
+    filehandler.close();
+  } else {
+    cout << "ERROR: could not write to " << filename << endl;
+  }
+
   if ((red > 0) && (red < 1)) {
-    ofstream filehandler;
-    string filename = "/dev/pi-blaster";
+    filename = "/dev/pi-blaster";
     filehandler.open(filename.c_str());
     if (filehandler.is_open()) {
       filehandler << "14=" << red << endl;

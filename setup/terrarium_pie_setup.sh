@@ -10,6 +10,18 @@
 
 curd=$(readlink -f $(dirname $0))
 
+# mount /tmp and /var/log to ram
+sudo sed -i "/\/var\/log/d" /etc/fstab
+sudo sed -i "/\/tmp/d" /etc/fstab
+cp /etc/fstab /tmp/fstab
+cp /etc/fstab ~/fstab.$(date +%F-%T)
+echo "tmpfs /var/log tmpfs size=16M 0 0" >> /tmp/fstab
+echo "tmpfs /tmp tmpfs size=128M 0 0" >> /tmp/fstab
+sudo chown root: /tmp/fstab
+sudo mv /tmp/fstab /etc/
+mount -a
+
+# create directories
 mkdir -p /tmp/setup
 cd /tmp/setup
 
@@ -42,13 +54,13 @@ sudo systemctl enable pi-blaster
 sudo systemctl start pi-blaster
 cd /tmp/setup
 
-# demon for the lights
+# demons for the lights
+daemons="lightsdaemon pincontroldaemon"
 sudo apt -y install wiringpi
 cd $curd/../source
-clang++ -Wall -O2 lightsdaemon.cpp -o ../bin/lightsdaemon
-cat > /tmp/lightsdaemon.service << EOF
+cat > /tmp/template.service << EOF
 [Unit]
-Description=Lights control daemon
+Description=Terrarium DAEMON
 
 [Service]
 ExecStart=PATH
@@ -57,11 +69,16 @@ Restart=always
 [Install]
 WantedBy=getty.target
 EOF
-sed -i "s;PATH;$(readlink -f $curd/../bin/lightsdaemon);" /tmp/lightsdaemon.service
-sudo mv /tmp/lightsdaemon.service /etc/systemd/system/lightsdaemon.service
-sudo systemctl daemon-reload
-sudo systemctl enable lightsdaemon
-sudo systemctl start lightsdaemon
+for d in $daemons ; do
+  clang++ -Wall -O2 $d.cpp -o ../bin/$d
+  cp /tmp/template.service /tmp/$d.service
+  sed -i "s;PATH;$(readlink -f $curd/../bin/lightsdaemon);" /tmp/$d.service
+  sed -i "s;DAEMON;$d;" /tmp/$d.service
+  sudo mv /tmp/$d.service /etc/systemd/system/$d.service
+  sudo systemctl daemon-reload
+  sudo systemctl enable $d
+  sudo systemctl start $d
+done
 
 # 24/7 according to https://www.datenreise.de/raspberry-pi-stabiler-24-7-dauerbetrieb/
 
@@ -83,6 +100,4 @@ sudo systemctl enable watchdog
 sudo systemctl start watchdog
 
 sudo apt -y autoremove
-
-
 
