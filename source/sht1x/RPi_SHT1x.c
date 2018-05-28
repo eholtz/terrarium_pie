@@ -12,7 +12,7 @@ This is a derivative work based on
 	License: Unknown - Attempts have been made to contact the author
 */
 
-#include "RPi_SHT1x_##MYPIN##.h"
+#include "RPi_SHT1x.h"
 
 /* Global variables of the SHT1x sensor */
 unsigned char SHT1x_crc;
