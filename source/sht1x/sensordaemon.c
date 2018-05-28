@@ -34,13 +34,13 @@ Sensirion SHT11 Temperature and Humidity Sensor interfaced to Raspberry Pi GPIO 
 #define NUMMEASURES 7
 
 // number of sensors
-#define SENSORCOUNT 6
+#define SENSORCOUNT 2
 
 // pins to control
 // wiring pi pins
 static unsigned short sensor_pins[SENSORCOUNT] = {
-    16, // sensor edge
-    18  // sensor top
+    RPI_GPIO_P1_16, // sensor top
+    RPI_GPIO_P1_18  // sensor edge
 };
 
 float calcsd(float data[], float min, float max);
@@ -73,13 +73,11 @@ float gethumi(unsigned char pin) {
 }
 
 int th(unsigned char pin) {
-  int x = 0, y = 0;
-  int maxtries = 10;
 
   float temp[NUMMEASURES];
   float humi[NUMMEASURES];
 
-  for (y = 0; y < NUMMEASURES; y++) {
+  for (int y = 0; y < NUMMEASURES; y++) {
     temp[y] = gettemp(pin);
     humi[y] = gethumi(pin);
   }
@@ -89,7 +87,7 @@ int th(unsigned char pin) {
   // acceptable range will be discarded).
   // range for temp: 14 to 50 °C
   // range for humi: 40 to 100 %
-	printf("%d",pin)
+  printf("pin %d\n",pin);
   if (calcsd(temp, 15, 50) < 1) {
     printf("%0.2f\n", calcmean(temp, 15, 50));
   } else {
@@ -133,13 +131,14 @@ float calcsd(float data[], float min, float max) {
 
 int main() {
 
-  while (true) {
+  while ( 1 == 1 ) {
     // Initialise the Raspberry Pi GPIO
     if (!bcm2835_init()) {
-      printf("ERROR: Could not init bcm2835!")
+      printf("ERROR: Could not init bcm2835!");
     } else {
-      for (int i = 0; i < SENSORCOUNT; i++) {
-        th(sensor_pins[i]);
+      for (int sensornum = 0; sensornum < SENSORCOUNT; sensornum++) {
+	printf("reading sensor number %d\n",sensornum);
+        th(sensor_pins[sensornum]);
       }
     }
     // sleep for 10 seconds
