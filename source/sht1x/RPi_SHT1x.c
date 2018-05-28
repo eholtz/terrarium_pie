@@ -64,7 +64,7 @@ void SHT1x_InitPins(unsigned char datapin) {
 void SHT1x_Reset(unsigned char datapin) {
   // Chapter 3.4
   unsigned char i;
-  SHT1x_DATA_HI(pin);
+  SHT1x_DATA_HI(datapin);
   SHT1x_DELAY;
   for (i = 9; i; i--) {
     SHT1x_SCK_HI;
@@ -72,7 +72,7 @@ void SHT1x_Reset(unsigned char datapin) {
     SHT1x_SCK_LO;
     SHT1x_DELAY;
   }
-  SHT1x_Transmission_Start();
+  SHT1x_Transmission_Start(datapin);
   SHT1x_Sendbyte(SHT1x_RESET, datapin); // Soft reset
 }
 
@@ -185,7 +185,7 @@ unsigned char SHT1x_Sendbyte(unsigned char value, unsigned char datapin) {
 
 unsigned char SHT1x_Measure_Start(SHT1xMeasureType type, unsigned char datapin) {
   // send a transmission start and reset crc calculation
-  SHT1x_Transmission_Start();
+  SHT1x_Transmission_Start(datapin);
   // send command. Crc gets updated!
   return SHT1x_Sendbyte((unsigned char)type, datapin);
 }
