@@ -82,6 +82,14 @@ for d in $daemons ; do
   sudo systemctl restart $d
 done
 
+# sht1x setup
+mkdir -p $curd/../source/libs/
+cd $curd/../source/libs/
+[ ! -e bcm2835-1.55.tar.gz ] && curl -O "http://www.airspayce.com/mikem/bcm2835/bcm2835-1.55.tar.gz"
+[ ! -d bcm2835-1.55 ] && tar xvzf bcm2835-1.55.tar.gz
+cd $curd/../source/sht1x/
+gcc -lm -I../libs/bcm2835-1.55/src/ -o $curd/../bin/sensordaemon ../libs/bcm2835-1.55/src/bcm2835.c ./RPi_SHT1x.c sensordaemon.c
+
 # 24/7 according to https://www.datenreise.de/raspberry-pi-stabiler-24-7-dauerbetrieb/
 
 # swap off
