@@ -91,18 +91,19 @@ int th(unsigned char pin) {
 
   sprintf(filename, "/dev/shm/sensor_%d", pin);
   FILE *fp = fopen(filename, "w");
-  if (fp == NULl) {
+  if (fp == NULL) {
     printf("ERROR: Could not open %s", filename);
   } else {
+    fprintf(fp,"sensor%d ",pin);
     if (calcsd(temp, 15, 50) < 1) {
-      fprintf(fp, "%0.2f\n", calcmean(temp, 15, 50));
+      fprintf(fp, "temperature=%0.2f,", calcmean(temp, 15, 50));
     } else {
-      fprintf(fp, "NaN\n");
+      fprintf(fp, "temperature=NaN,");
     }
     if (calcsd(humi, 40, 100) < 1) {
-      fprintf(fp, "%0.2f\n", calcmean(humi, 40, 100));
+      fprintf(fp, "humidity=%0.2f\n",calcmean(humi, 40, 100));
     } else {
-      fprintf(fp, "NaN\n");
+      fprintf(fp, "humidity=NaN\n");
     }
     fclose(fp);
   }
