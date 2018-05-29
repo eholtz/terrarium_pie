@@ -139,16 +139,24 @@ float calcsd(float data[], float min, float max) {
 }
 
 int main() {
+  unsigned short failcounter=0;
 
   while (1 == 1) {
     // Initialise the Raspberry Pi GPIO
     if (!bcm2835_init()) {
       printf("ERROR: Could not init bcm2835!");
+      failcounter++;
     } else {
       for (int sensornum = 0; sensornum < SENSORCOUNT; sensornum++) {
         printf("reading sensor number %d\n", sensornum);
         th(sensor_pins[sensornum]);
       }
+      failcounter=0;
+    }
+    // if we did not get any value within the last 
+    // two minutes we'll exit
+    if (failcounter>12) {
+      return 1;
     }
     // sleep for 10 seconds
     usleep(10000000);
