@@ -73,6 +73,7 @@ float gethumi(unsigned char pin) {
 }
 
 int th(unsigned char pin) {
+  char filename[23];
 
   float temp[NUMMEASURES];
   float humi[NUMMEASURES];
@@ -87,16 +88,23 @@ int th(unsigned char pin) {
   // acceptable range will be discarded).
   // range for temp: 14 to 50 °C
   // range for humi: 40 to 100 %
-  printf("pin %d\n",pin);
-  if (calcsd(temp, 15, 50) < 1) {
-    printf("%0.2f\n", calcmean(temp, 15, 50));
+
+  sprintf(filename, "/dev/shm/sensor_%d", pin);
+  FILE *fp = fopen(filename, "w");
+  if (fp == NULl) {
+    printf("ERROR: Could not open %s", filename);
   } else {
-    printf("NaN\n");
-  }
-  if (calcsd(humi, 40, 100) < 1) {
-    printf("%0.2f\n", calcmean(humi, 40, 100));
-  } else {
-    printf("NaN\n");
+    if (calcsd(temp, 15, 50) < 1) {
+      fprintf(fp, "%0.2f\n", calcmean(temp, 15, 50));
+    } else {
+      fprintf(fp, "NaN\n");
+    }
+    if (calcsd(humi, 40, 100) < 1) {
+      fprintf(fp, "%0.2f\n", calcmean(humi, 40, 100));
+    } else {
+      fprintf(fp, "NaN\n");
+    }
+    fclose(fp);
   }
 }
 
@@ -131,13 +139,13 @@ float calcsd(float data[], float min, float max) {
 
 int main() {
 
-  while ( 1 == 1 ) {
+  while (1 == 1) {
     // Initialise the Raspberry Pi GPIO
     if (!bcm2835_init()) {
       printf("ERROR: Could not init bcm2835!");
     } else {
       for (int sensornum = 0; sensornum < SENSORCOUNT; sensornum++) {
-	printf("reading sensor number %d\n",sensornum);
+        printf("reading sensor number %d\n", sensornum);
         th(sensor_pins[sensornum]);
       }
     }
