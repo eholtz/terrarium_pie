@@ -94,14 +94,14 @@ int th(unsigned char pin) {
   if (fp == NULL) {
     printf("ERROR: Could not open %s", filename);
   } else {
-    fprintf(fp,"sensor%d ",pin);
+    fprintf(fp, "sensor%d ", pin);
     if (calcsd(temp, 15, 50) < 1) {
       fprintf(fp, "temperature=%0.2f,", calcmean(temp, 15, 50));
     } else {
       fprintf(fp, "temperature=NaN,");
     }
     if (calcsd(humi, 40, 100) < 1) {
-      fprintf(fp, "humidity=%0.2f\n",calcmean(humi, 40, 100));
+      fprintf(fp, "humidity=%0.2f\n", calcmean(humi, 40, 100));
     } else {
       fprintf(fp, "humidity=NaN\n");
     }
