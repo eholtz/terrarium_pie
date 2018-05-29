@@ -40,19 +40,23 @@ sudo systemctl restart chrony
 # install pi-blaster
 sudo apt -y install autoconf
 sudo apt -y install clang
-git clone https://github.com/sarfata/pi-blaster.git
-cd pi-blaster
-git checkout -- pi-blaster.c
-# my setup for the pins 14,15,18
-sed -i "/static.uint8_t.known_pins.MAX_CHANNELS./,/;/c\
-static uint8_t known_pins[MAX_CHANNELS] = { 14, 15, 18 };" pi-blaster.c
-./autogen.sh
-./configure
-make
-sudo make install
-sudo systemctl enable pi-blaster
-sudo systemctl start pi-blaster
-cd /tmp/setup
+if [ -e /dev/pi-blaster ] ; then
+  echo "pi-blaster already installed"
+else
+  git clone https://github.com/sarfata/pi-blaster.git
+  cd pi-blaster
+  git checkout -- pi-blaster.c
+  # my setup for the pins 14,15,18
+  sed -i "/static.uint8_t.known_pins.MAX_CHANNELS./,/;/c\
+  static uint8_t known_pins[MAX_CHANNELS] = { 14, 15, 18 };" pi-blaster.c
+  ./autogen.sh
+  ./configure
+  make
+  sudo make install
+  sudo systemctl enable pi-blaster
+  sudo systemctl start pi-blaster
+  cd /tmp/setup
+fi
 
 # demons for the lights
 sudo apt -y install wiringpi
@@ -89,6 +93,13 @@ cd $curd/../source/libs/
 [ ! -d bcm2835-1.55 ] && tar xvzf bcm2835-1.55.tar.gz
 cd $curd/../source/sht1x/
 gcc -lm -I../libs/bcm2835-1.55/src/ -o $curd/../bin/sensordaemon ../libs/bcm2835-1.55/src/bcm2835.c ./RPi_SHT1x.c sensordaemon.c
+cp /tmp/template.service /tmp/sensordaemon.service
+sed -i "s;PATH;$(readlink -f $curd/../bin/sensordaemon);" /tmp/sensordaemon.service
+sed -i "s;DAEMON;sensordaemon;" /tmp/sensordaemon.service
+sudo mv /tmp/sensordaemon.service /etc/systemd/system/sensordaemon.service
+sudo systemctl daemon-reload
+sudo systemctl enable sensordaemon
+sudo systemctl restart sensordaemon
 
 # 24/7 according to https://www.datenreise.de/raspberry-pi-stabiler-24-7-dauerbetrieb/
 
@@ -108,6 +119,38 @@ EOF
 sudo mv /tmp/watchdog.conf /etc/watchdog.conf
 sudo systemctl enable watchdog
 sudo systemctl start watchdog
+
+# install influxdb
+if [[ $(dpkg-query -l 'influxdbs' &>/dev/null) ]] ; then 
+  echo "influxdb already installed"
+else
+  curl -sL https://repos.influxdata.com/influxdb.key | sudo apt-key add -
+  echo "deb https://repos.influxdata.com/debian stretch stable" | sudo tee /etc/apt/sources.list.d/influxdb.list
+  sudo apt update
+  sudo apt -y install influxdb telegraf
+  sudo systemctl enable influxdb
+  sudo systemctl start influxdb 
+  influx -execute "CREATE USER admin WITH PASSWORD 'password' WITH ALL PRIVILEGES"
+  influx -execute "CREATE DATABASE telegraf"
+  influx -username admin -password password -execute "CREATE DATABASE telegraf"
+  sudo systemctl stop influxdb
+  echo "please edit /etc/influxdb/influxdb.conf"
+  echo " => global"
+  echo "   => reporting-disabled = true"
+  echo " => section [http]"
+  echo "   => enabled = true"
+  echo "   => bind-address = \":8086\""
+  echo "   => auth-enabled = true"
+  echo
+  echo "please edit "
+  echo " => section [[outputs.influxdb]]"
+  echo "   => database = \"telegraf\""
+  echo "   => username = \"admin\""
+  echo "   => password = \"password\""
+  sudo systemctl enable telegraf
+  sudo systemctl stop telegraf
+fi
+
 
 sudo apt -y autoremove
 
