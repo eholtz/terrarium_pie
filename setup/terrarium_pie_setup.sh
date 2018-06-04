@@ -131,7 +131,6 @@ else
   sudo systemctl enable influxdb
   sudo systemctl start influxdb 
   influx -execute "CREATE USER admin WITH PASSWORD 'password' WITH ALL PRIVILEGES"
-  influx -execute "CREATE DATABASE telegraf"
   influx -username admin -password password -execute "CREATE DATABASE telegraf"
   sudo systemctl stop influxdb
   echo "please edit /etc/influxdb/influxdb.conf"
