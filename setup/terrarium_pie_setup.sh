@@ -150,6 +150,4 @@ else
   sudo systemctl stop telegraf
 fi
 
-
 sudo apt -y autoremove
-

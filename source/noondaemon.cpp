@@ -19,15 +19,15 @@ int main() {
     now = time(0);
     nowt = localtime(&now);
     if (nowt->tm_hour == 12) {
-      if (state==0) {
+      if (state == 0) {
         cout << "It's noon now" << endl;
       }
-      state=1;
+      state = 1;
     } else {
-      if (state==1) {
-        cout << "Noon is over" << endl;        
+      if (state == 1) {
+        cout << "Noon is over" << endl;
       }
-      state=0;
+      state = 0;
     }
     filename = "/dev/shm/pin_7";
     filehandler.open(filename.c_str());
