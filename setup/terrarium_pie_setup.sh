@@ -121,7 +121,7 @@ sudo systemctl enable watchdog
 sudo systemctl start watchdog
 
 # install influxdb
-if [[ $(dpkg-query -l 'influxdb' &>/dev/null) ]] ; then 
+if [ -n "$(dpkg-query -l | grep influxdb)" ] ; then 
   echo "influxdb already installed"
 else
   curl -sL https://repos.influxdata.com/influxdb.key | sudo apt-key add -
