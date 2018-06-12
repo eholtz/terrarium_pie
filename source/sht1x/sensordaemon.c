@@ -148,7 +148,7 @@ int main() {
       failcounter++;
     } else {
       for (int sensornum = 0; sensornum < SENSORCOUNT; sensornum++) {
-        printf("reading sensor number %d\n", sensornum);
+        // printf("reading sensor number %d\n", sensornum);
         th(sensor_pins[sensornum]);
       }
       failcounter=0;
