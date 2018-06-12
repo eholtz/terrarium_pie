@@ -124,7 +124,7 @@ sudo systemctl start watchdog
 sudo apt -y autoremove
 
 # install crontab
-cronfilepath="$(readlink -F "$curd/../cron/")"
+cronfilepath="$(readlink -f "$curd/../cron/")"
 echo "* * * * * $(whoami) $cronfilepath/terracam.sh" > /tmp/terrarium_pie
 echo "46 23 * * * $(whoami) $cronfilepath/create_gallery.sh" >> /tmp/terrarium_pie
 sudo chown root: /tmp/terrarium_pie
