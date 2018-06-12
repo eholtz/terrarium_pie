@@ -26,7 +26,7 @@ mkdir -p /tmp/setup
 cd /tmp/setup
 
 # install things i want
-sudo apt -y install tmux
+sudo apt -y install tmux imagemagick
 
 # install and configure chrony
 # the makestep 1 -1 will not slew the clock if the
@@ -119,35 +119,5 @@ EOF
 sudo mv /tmp/watchdog.conf /etc/watchdog.conf
 sudo systemctl enable watchdog
 sudo systemctl start watchdog
-
-# install influxdb
-if [ -n "$(dpkg-query -l | grep influxdb)" ] ; then 
-  echo "influxdb already installed"
-else
-  curl -sL https://repos.influxdata.com/influxdb.key | sudo apt-key add -
-  echo "deb https://repos.influxdata.com/debian stretch stable" | sudo tee /etc/apt/sources.list.d/influxdb.list
-  sudo apt update
-  sudo apt -y install influxdb telegraf
-  sudo systemctl enable influxdb
-  sudo systemctl start influxdb 
-  influx -execute "CREATE USER admin WITH PASSWORD 'password' WITH ALL PRIVILEGES"
-  influx -username admin -password password -execute "CREATE DATABASE telegraf"
-  sudo systemctl stop influxdb
-  echo "please edit /etc/influxdb/influxdb.conf"
-  echo " => global"
-  echo "   => reporting-disabled = true"
-  echo " => section [http]"
-  echo "   => enabled = true"
-  echo "   => bind-address = \":8086\""
-  echo "   => auth-enabled = true"
-  echo
-  echo "please edit "
-  echo " => section [[outputs.influxdb]]"
-  echo "   => database = \"telegraf\""
-  echo "   => username = \"admin\""
-  echo "   => password = \"password\""
-  sudo systemctl enable telegraf
-  sudo systemctl stop telegraf
-fi
 
 sudo apt -y autoremove
