@@ -120,4 +120,12 @@ sudo mv /tmp/watchdog.conf /etc/watchdog.conf
 sudo systemctl enable watchdog
 sudo systemctl start watchdog
 
+# clean up
 sudo apt -y autoremove
+
+# install crontab
+cronfilepath="$(readlink -F "$curd/../cron/")"
+echo "* * * * * $(whoami) $cronfilepath/terracam.sh" > /tmp/terrarium_pie
+echo "46 23 * * * $(whoami) $cronfilepath/create_gallery.sh" >> /tmp/terrarium_pie
+sudo chown root: /tmp/terrarium_pie
+sudo mv /tmp/terrarium_pie /etc/cron.d/
