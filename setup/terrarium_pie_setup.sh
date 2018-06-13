@@ -28,7 +28,7 @@ mkdir -p /tmp/setup
 cd /tmp/setup
 
 # install things i want
-sudo apt -y install tmux imagemagick
+sudo apt -y install tmux imagemagick rrdtool
 
 # install and configure chrony
 # the makestep 1 -1 will not slew the clock if the
@@ -129,5 +129,6 @@ sudo apt -y autoremove
 cronfilepath="$(readlink -f "$curd/../cron/")"
 echo "* * * * * $(whoami) $cronfilepath/terracam.sh" > /tmp/terrarium_pie
 echo "46 23 * * * $(whoami) $cronfilepath/create_gallery.sh" >> /tmp/terrarium_pie
+echo "*/3 * * * * $(whoami) $cronfilepath/update_rrd.sh" >> /tmp/terrarium_pie
 sudo chown root: /tmp/terrarium_pie
 sudo mv /tmp/terrarium_pie /etc/cron.d/
