@@ -110,9 +110,17 @@ runlog="$dir_tmp/gallerylog.$(date +%Y%m%d.%H%M%S)"
 echo "Starting up @ $(date +"%T %Z") ... " > $runlog
 echo "logfile is $runlog " >> $runlog
 
+# if we got a folder from the command line, use it
 if [ -n "$1" ] ; then
   dir_today="$1"
 fi
+
+# we will exit if we don't find the given directory
+if [ ! -d $dir_today ] ; then
+  echo "could not find $dir_today" >> $runlog
+  exit 1
+fi
+
 
 current_date=$(basename $dir_today)
 clean_date=$(echo $current_date | sed "s/[^0-9]//g")

@@ -1,6 +1,7 @@
 #!/bin/bash
 
 if [ -z "$(grep 10.0.0.2 /proc/mounts)" ]; then
+	sudo mount -a
 	exit 0
 fi
 

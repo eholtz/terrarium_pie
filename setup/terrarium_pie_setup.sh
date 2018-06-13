@@ -13,10 +13,12 @@ curd=$(readlink -f $(dirname $0))
 # mount /tmp and /var/log to ram
 sudo sed -i "/\/var\/log/d" /etc/fstab
 sudo sed -i "/\/tmp/d" /etc/fstab
+sudo sed -i "/10.0.0.2/d" /etc/fstab
 cp /etc/fstab /tmp/fstab
 cp /etc/fstab ~/fstab.$(date +%F-%T)
 echo "tmpfs /var/log tmpfs size=16M 0 0" >> /tmp/fstab
 echo "tmpfs /tmp tmpfs size=128M 0 0" >> /tmp/fstab
+echo "10.0.0.2:/mnt/cryptttbraid/terra1 /mnt/nfs/ nfs intr,soft,timeo=60,noauto 0 0" >> /tmp/fstab
 sudo chown root: /tmp/fstab
 sudo mv /tmp/fstab /etc/
 sudo mount -a
