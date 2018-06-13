@@ -28,6 +28,7 @@ Sensirion SHT11 Temperature and Humidity Sensor interfaced to Raspberry Pi GPIO 
 #include <bcm2835.h>
 #include <math.h>
 #include <stdio.h>
+#include <time.h>
 
 // define number of measurements
 // we will output the median
@@ -72,11 +73,12 @@ float gethumi(unsigned char pin) {
   return humi_val.f;
 }
 
-int th(unsigned char pin) {
-  char filename[23];
+void th(unsigned char pin, char *values, int bufsize) {
 
   float temp[NUMMEASURES];
   float humi[NUMMEASURES];
+  char humis[23];
+  char temps[23];
 
   for (int y = 0; y < NUMMEASURES; y++) {
     temp[y] = gettemp(pin);
@@ -89,24 +91,18 @@ int th(unsigned char pin) {
   // range for temp: 14 to 50 °C
   // range for humi: 40 to 100 %
 
-  sprintf(filename, "/dev/shm/sensor_%d", pin);
-  FILE *fp = fopen(filename, "w");
-  if (fp == NULL) {
-    printf("ERROR: Could not open %s", filename);
+  if (calcsd(temp, 15, 50) < 1) {
+    snprintf(temps, sizeof(temps), "%0.2f", calcmean(temp, 15, 50));
   } else {
-    fprintf(fp, "sensor%d ", pin);
-    if (calcsd(temp, 15, 50) < 1) {
-      fprintf(fp, "temperature=%0.2f,", calcmean(temp, 15, 50));
-    } else {
-      fprintf(fp, "temperature=NaN,");
-    }
-    if (calcsd(humi, 40, 100) < 1) {
-      fprintf(fp, "humidity=%0.2f\n", calcmean(humi, 40, 100));
-    } else {
-      fprintf(fp, "humidity=NaN\n");
-    }
-    fclose(fp);
+    snprintf(temps, sizeof(temps), "NaN");
   }
+  if (calcsd(humi, 40, 100) < 1) {
+    snprintf(humis, sizeof(humis), "%0.2f", calcmean(humi, 40, 100));
+  } else {
+    snprintf(humis, sizeof(humis), "%0.2f");
+  }
+  snprintf(values, bufsize, "%d %s %s", pin, temps, humis);
+  values[bufsize - 1] = '\0';
 }
 
 float calcmean(float data[], float min, float max) {
@@ -139,7 +135,12 @@ float calcsd(float data[], float min, float max) {
 }
 
 int main() {
-  unsigned short failcounter=0;
+  unsigned short failcounter = 0;
+  time_t now = time(0);
+  char buffer[128];
+  // mkdir did not work for some strange reason, so I'm lazy
+  snprintf(buffer, sizeof(buffer), "mkdir -p /dev/shm/sensors/");
+  system(buffer);
 
   while (1 == 1) {
     // Initialise the Raspberry Pi GPIO
@@ -147,15 +148,24 @@ int main() {
       printf("ERROR: Could not init bcm2835!");
       failcounter++;
     } else {
-      for (int sensornum = 0; sensornum < SENSORCOUNT; sensornum++) {
-        // printf("reading sensor number %d\n", sensornum);
-        th(sensor_pins[sensornum]);
+      now = time(0);
+      sprintf(buffer, "/dev/shm/sensors/%d", now);
+      FILE *fp = fopen(buffer, "w");
+      if (fp == NULL) {
+        printf("ERROR: Could not open %s", buffer);
+      } else {
+        for (int sensornum = 0; sensornum < SENSORCOUNT; sensornum++) {
+          // printf("reading sensor number %d\n", sensornum);
+          th(sensor_pins[sensornum], buffer, sizeof(buffer));
+          fprintf(fp,"%s\n",buffer);
+        }
       }
-      failcounter=0;
+      fclose(fp);
+      failcounter = 0;
     }
-    // if we did not get any value within the last 
+    // if we did not get any value within the last
     // two minutes we'll exit
-    if (failcounter>12) {
+    if (failcounter > 12) {
       return 1;
     }
     // sleep for 10 seconds
