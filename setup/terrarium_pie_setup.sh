@@ -16,9 +16,9 @@ sudo sed -i "/\/tmp/d" /etc/fstab
 sudo sed -i "/10.0.0.2/d" /etc/fstab
 cp /etc/fstab /tmp/fstab
 cp /etc/fstab ~/fstab.$(date +%F-%T)
-echo "tmpfs /var/log tmpfs size=16M 0 0" >> /tmp/fstab
-echo "tmpfs /tmp tmpfs size=128M 0 0" >> /tmp/fstab
-echo "10.0.0.2:/mnt/cryptttbraid/terra1 /mnt/nfs/ nfs intr,soft,timeo=60,noauto 0 0" >> /tmp/fstab
+echo "tmpfs /var/log tmpfs size=16M 0 0" >>/tmp/fstab
+echo "tmpfs /tmp tmpfs size=128M 0 0" >>/tmp/fstab
+echo "10.0.0.2:/mnt/cryptttbraid/terra1 /mnt/nfs/ nfs intr,soft,timeo=60,noauto 0 0" >>/tmp/fstab
 sudo chown root: /tmp/fstab
 sudo mv /tmp/fstab /etc/
 sudo mount -a
@@ -35,14 +35,14 @@ sudo apt -y install tmux imagemagick rrdtool
 # difference is more than one second anytime
 # and not just at the startup
 sudo apt -y install chrony
-sudo sed -i "s/^makestep.*/makestep 1 -1/" /etc/chrony/chrony.conf 
+sudo sed -i "s/^makestep.*/makestep 1 -1/" /etc/chrony/chrony.conf
 sudo systemctl enable chrony
 sudo systemctl restart chrony
 
 # install pi-blaster
 sudo apt -y install autoconf
 sudo apt -y install clang
-if [ -e /dev/pi-blaster ] ; then
+if [ -e /dev/pi-blaster ]; then
   echo "pi-blaster already installed"
 else
   git clone https://github.com/sarfata/pi-blaster.git
@@ -64,7 +64,7 @@ fi
 sudo apt -y install wiringpi
 cd $curd/../source
 daemons=$(ls *daemon.cpp)
-cat > /tmp/template.service << EOF
+cat >/tmp/template.service <<EOF
 [Unit]
 Description=Terrarium DAEMON
 
@@ -75,7 +75,7 @@ Restart=always
 [Install]
 WantedBy=getty.target
 EOF
-for d in $daemons ; do
+for d in $daemons; do
   d=$(echo $d | sed "s/\..*$//")
   echo "Compiling and installing $d"
   clang++ -Wall -O2 $d.cpp -o ../bin/$d
@@ -112,7 +112,7 @@ sudo apt-get -y purge dphys-swapfile
 
 # watchdog module already loaded by default
 sudo apt -y install watchdog
-cat > /tmp/watchdog.conf << EOF
+cat >/tmp/watchdog.conf <<EOF
 max-load-1      = 24
 watchdog-device = /dev/watchdog
 realtime        = yes
@@ -127,8 +127,8 @@ sudo apt -y autoremove
 
 # install crontab
 cronfilepath="$(readlink -f "$curd/../cron/")"
-echo "* * * * * $(whoami) $cronfilepath/terracam.sh" > /tmp/terrarium_pie
-echo "46 23 * * * $(whoami) $cronfilepath/create_gallery.sh" >> /tmp/terrarium_pie
-echo "*/3 * * * * $(whoami) $cronfilepath/update_rrd.sh" >> /tmp/terrarium_pie
+echo "* * * * * $(whoami) $cronfilepath/terracam.sh" >/tmp/terrarium_pie
+echo "46 23 * * * $(whoami) $cronfilepath/create_gallery.sh" >>/tmp/terrarium_pie
+echo "*/3 * * * * $(whoami) $cronfilepath/update_rrd.sh" >>/tmp/terrarium_pie
 sudo chown root: /tmp/terrarium_pie
 sudo mv /tmp/terrarium_pie /etc/cron.d/
