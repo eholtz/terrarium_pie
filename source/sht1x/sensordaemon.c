@@ -29,6 +29,7 @@ Sensirion SHT11 Temperature and Humidity Sensor interfaced to Raspberry Pi GPIO 
 #include <math.h>
 #include <stdio.h>
 #include <time.h>
+#include <stdlib.h>
 
 // define number of measurements
 // we will output the median
