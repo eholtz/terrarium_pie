@@ -18,8 +18,8 @@ if [ $? -eq 0 ]; then
   ctz=$TZ
   TZ="Europe/Berlin"
   export TZ
-
-  convert $tmpdir/camtmp.jpg -fill white -gravity south -annotate +0+0 "Geckocam $(date +"%F %R %Z")" $tmpdir/camtmptxt.jpg
+  convert $tmpdir/camtmp.jpg -resize 1920x1080 $tmpdir/camtmp.bmp
+  convert $tmpdir/camtmp.bmp -fill white -font DejaVu-Sans-Bold -pointsize 24 -gravity south -annotate +0+0 "Geckocam $(date +"%F %R %Z")" -quality 80 $tmpdir/camtmptxt.jpg
   TZ=$ctz
   export TZ
 
