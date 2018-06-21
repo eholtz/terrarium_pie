@@ -127,8 +127,11 @@ sudo apt -y autoremove
 
 # install crontab
 cronfilepath="$(readlink -f "$curd/../cron/")"
+setuppath="$(readlink -f "$curd/../setup/")"
 echo "* * * * * $(whoami) $cronfilepath/terracam.sh" >/tmp/terrarium_pie
 echo "46 23 * * * $(whoami) $cronfilepath/create_gallery.sh" >>/tmp/terrarium_pie
 echo "*/3 * * * * $(whoami) $cronfilepath/update_rrd.sh" >>/tmp/terrarium_pie
+echo "23 23 * * * $(whoami) timeout 5 cp $setuppath/image.php /mnt/nfs/"
+echo "23 23 * * * $(whoami) timeout 5 cp $setuppath/index.php /mnt/nfs/"
 sudo chown root: /tmp/terrarium_pie
 sudo mv /tmp/terrarium_pie /etc/cron.d/
