@@ -25,11 +25,6 @@ void createraindays() {
   time_t now = time(0);
   struct tm *nowt = localtime(&now);
 
-  // we will have to do every day of the year
-  // and we'll let c++ do the calculation for us
-  time_t calctime = time(0);
-  struct tm *calctimet;
-
   // buffer for filename and the actual
   // file handler
   char buffer[128];
@@ -51,6 +46,7 @@ void createraindays() {
   unsigned long rainduration = 0;
   unsigned int rainstartsecond = 0;
   unsigned short state = 0;
+  unsigned int currentyear=nowt->tm_year;
 
   cout << "creating rain directory" << endl;
   // mkdir did not work for some strange reason, so I'm lazy
@@ -61,14 +57,13 @@ void createraindays() {
   // states across reboots
   cout << "calculating rain days ... " << endl;
   srand(nowt->tm_year);
-  calctimet = localtime(&calctime);
-  calctimet->tm_yday = 0;
-  calctimet->tm_hour = 1;
-  calctimet->tm_min = 0;
-  calctimet->tm_sec = 0;
-  calctime = mktime(calctimet);
-  while (calctimet->tm_year == nowt->tm_year) {
-    // cout << i << endl;
+  nowt = localtime(&now);
+  nowt->tm_yday = 0;
+  nowt->tm_hour = 1;
+  nowt->tm_min = 0;
+  nowt->tm_sec = 0;
+  now = mktime(nowt);
+  while (currentyear == nowt->tm_year) {
     if ((rand() % RAINPROBMAX) < rainprobability) {
       state = 1;
       rainduration = rand() % (DURATIONMAX - DURATIONMIN) + DURATIONMIN;
@@ -83,11 +78,12 @@ void createraindays() {
       rainstartsecond = 0;
       rainprobability += RAINPROBMAX / RAINPAUSE;
     }
-    snprintf(buffer, sizeof(buffer), "/dev/shm/rain/%d", calctimet->tm_yday);
+    snprintf(buffer, sizeof(buffer), "/dev/shm/rain/%d", nowt->tm_yday);
     outhandler.open(buffer);
     if (outhandler.is_open()) {
       outhandler << rainduration << endl;
       outhandler << rainstartsecond << endl;
+      outhandler << nowt->tm_year+1900 << "-" << nowt->tm_mon+1 << "-" << nowt->tm_mday << endl;
       outhandler.close();
     } else {
       cout << "ERROR: could not write to " << buffer << endl;
@@ -98,8 +94,8 @@ void createraindays() {
     // it will not be a problem in the long run, because we only
     // calculate times for one year and we only have 366*2 seconds
     // (leap year) which is less than a day.
-    calctime += 86402;
-    calctimet = localtime(&calctime);
+    now += 86402;
+    nowt = localtime(&now);
   }
   cout << "calculating done." << endl;
 }
@@ -127,7 +123,7 @@ int main() {
     now = time(0);
     nowt = localtime(&now);
     // compensate for a new year
-    if (startt->tm_year!=nowt->tm_year) {
+    if (startt->tm_year != nowt->tm_year) {
       createraindays();
     }
     currentsecond = nowt->tm_hour * 3600 + nowt->tm_min * 60 + nowt->tm_sec;
