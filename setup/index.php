@@ -16,6 +16,18 @@ echo '<a href="' . "./terracam/" . $dayfolders[0] . "/" . $pictures[0] . '"><img
 ?>
 <h1>Regen</h1>
 <pre><?php echo file_get_contents("include"); ?></pre>
+<h1>Statistiken</h1>
+<?php
+$ppath = "./rrd/graphs/";
+foreach (scandir($ppath) as $pic) {
+    if (substr($pic, -4) == ".png") {
+        $pictures[] = $pic;
+    }
+}
+foreach ($pictures as $pic) {
+    echo "<img src=\"" . $ppath . "/" . $pic . "\">";
+}
+?>
 <h1>Alte Bilder</h1>
 <?php
 foreach ($dayfolders as $day) {

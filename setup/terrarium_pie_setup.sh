@@ -60,7 +60,7 @@ else
   cd /tmp/setup
 fi
 
-# demons for the lights
+# deamons
 sudo apt -y install wiringpi
 cd $curd/../source
 daemons=$(ls *daemon.cpp)
@@ -128,11 +128,12 @@ sudo apt -y autoremove
 # install crontab
 cronfilepath="$(readlink -f "$curd/../cron/")"
 setuppath="$(readlink -f "$curd/../setup/")"
-echo "*   *   * * * $(whoami) $cronfilepath/terracam.sh" >/tmp/terrarium_pie
-echo "46  23  * * * $(whoami) $cronfilepath/create_gallery.sh" >>/tmp/terrarium_pie
-echo "*/3 *   * * * $(whoami) $cronfilepath/update_rrd.sh" >>/tmp/terrarium_pie
-echo "2   *   * * * $(whoami) timeout 5  $cronfilepath/update_web.sh > /mnt/nfs/include" >>/tmp/terrarium_pie
-echo "23  23  * * * root timeout 5 cp $setuppath/image.php /mnt/nfs/" >>/tmp/terrarium_pie
-echo "23  23  * * * root timeout 5 cp $setuppath/index.php /mnt/nfs/" >>/tmp/terrarium_pie
+echo "*    *   * * * $(whoami) $cronfilepath/terracam.sh" >/tmp/terrarium_pie
+echo "46   23  * * * $(whoami) $cronfilepath/create_gallery.sh" >>/tmp/terrarium_pie
+echo "*/3  *   * * * $(whoami) $cronfilepath/update_rrd.sh" >>/tmp/terrarium_pie
+echo "*/15 *   * * * $(whoami) $cronfilepath/graph_rrd.sh" >>/tmp/terrarium_pie
+echo "2    *   * * * $(whoami) timeout 5  $cronfilepath/update_web.sh > /mnt/nfs/include" >>/tmp/terrarium_pie
+echo "23   23  * * * root timeout 5 cp $setuppath/image.php /mnt/nfs/" >>/tmp/terrarium_pie
+echo "23   23  * * * root timeout 5 cp $setuppath/index.php /mnt/nfs/" >>/tmp/terrarium_pie
 sudo chown root: /tmp/terrarium_pie
 sudo mv /tmp/terrarium_pie /etc/cron.d/
