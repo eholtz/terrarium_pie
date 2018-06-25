@@ -18,6 +18,7 @@ else
       rainduration=1
     fi
   done
+  echo "Nächster Regen:"
 fi
 rs_hour=$(($rainstart / 3600))
 rs_min=$((($rainstart - $rs_hour * 3600) / 60))
@@ -26,7 +27,11 @@ ctz=$TZ
 TZ="Europe/Berlin"
 export TZ
 datestr=$(date --date="$rainday $rs_hour:$rs_min:$rs_sec" +"%F %T")
-echo "Datum: $datestr"
+echo "Datum/Uhrzeit: $datestr"
 echo "Dauer: $rainduration Sekunden"
 TZ=$ctz
 export TZ
+echo
+while read desc jt ht ; do
+  printf "%14s %6\n" $desc $ht
+done < /dev/shm/terrarium_times
