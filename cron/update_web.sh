@@ -6,9 +6,11 @@ rainduration="$(sed '1q;d' $rainpath/$rainfile)"
 rainstart="$(sed '2q;d' $rainpath/$rainfile)"
 rainday="$(sed '3q;d' $rainpath/$rainfile)"
 
-ctz=$TZ
+# dave current timezone and set it to europe/berlin
+ctz=$(date +%Z)
 TZ="Europe/Berlin"
 export TZ
+
 if [[ $rainstart -ne 0 ]]; then
   echo "Heute ist Regentag"
 else
@@ -21,18 +23,23 @@ else
       rainduration=1
     fi
   done
-  datstr=$(date --date="$rainday $rs_hour:$rs_min:$rs_sec" +%F)
+  datestr=$(date --date="$rainday 01:23:45 $ctz" +%F)
   echo "Nächster Regen: $datestr"
 fi
 rs_hour=$(($rainstart / 3600))
 rs_min=$((($rainstart - $rs_hour * 3600) / 60))
 rs_sec=$(($rainstart - $rs_hour * 3600 - $rs_min * 60))
-datestr=$(date --date="$rainday $rs_hour:$rs_min:$rs_sec" +%T)
+datestr=$(date --date="$rainday $rs_hour:$rs_min:$rs_sec $ctz" +%T)
 echo "Uhrzeit: $datestr"
 echo "Dauer: $rainduration Sekunden"
-TZ=$ctz
-export TZ
+
+# now include the dusk and dawn calculation
 echo
 while read desc jt ht ; do
-  printf "%14s %6\n" $desc $ht
+  datestr=$(date --date="$(date +%F) $ht $ctz" +%R)
+  printf "%14s %6s\n" $desc $datestr
 done < /dev/shm/terrarium_times
+
+# clean up timezone
+TZ=$ctz
+export TZ
