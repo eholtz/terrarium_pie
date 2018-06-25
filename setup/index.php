@@ -25,9 +25,9 @@ $pictures = scandir("./terracam/" . $dayfolders[0]);
 rsort($pictures);
 echo '<a href="' . "./terracam/" . $dayfolders[0] . "/" . $pictures[0] . '"><img src="' . "./terracam/" . $dayfolders[0] . "/" . $pictures[0] . '" height="196" width="262"></a>';
 ?>
-<h1>Regen</h1>
+<h1>Wetter</h1>
 <pre><?php echo file_get_contents("include"); ?></pre>
-<h1>Statistiken</h1>
+<h1>Messwerte</h1>
 <?php
 $ppath = "./rrd/graphs/";
 foreach (scandir($ppath) as $pic) {
