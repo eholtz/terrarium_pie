@@ -32,11 +32,12 @@ void createraindays() {
 
   // definition of rain times.
   // rainpause = 4 => it will rain about every 4 days
+  // rainpause = 6 => it will rain about every 6 days
   // raindurationmin/raindurationmax is in seconds
   // rainstarthour/rainstophour should be configured in
   // a way it does not interfere with the noon light
   static unsigned short RAINPROBMAX = 256;
-  static unsigned short RAINPAUSE = 4;
+  static unsigned short RAINPAUSE = 6;
   static unsigned short DURATIONMIN = 60;
   static unsigned short DURATIONMAX = 240;
   static unsigned short RAINSTARTOUR = 13;
