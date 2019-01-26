@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ -z "$(grep 10.0.0.2 /proc/mounts)" ]; then
-  sudo mount -a
+  sudo mount /mnt/nfs
   exit 0
 fi
 
