@@ -105,7 +105,8 @@ void setlights(double dayhour, double dawn, double rise, double set, double dusk
   // the pins are hardcoded - that's not very
   // nice, but it works...
 
-  filename = "/dev/shm/pin_8";
+  // light tubes
+  filename = "/dev/shm/pin_29";
   filehandler.open(filename.c_str());
   if (filehandler.is_open()) {
     filehandler << (int)lights << endl;
@@ -114,7 +115,8 @@ void setlights(double dayhour, double dawn, double rise, double set, double dusk
     cout << "ERROR: could not write to " << filename << endl;
   }
 
-  filename = "/dev/shm/pin_9";
+  // 12v for leds
+  filename = "/dev/shm/pin_28";
   filehandler.open(filename.c_str());
   if (filehandler.is_open()) {
     filehandler << (int)riseordawn << endl;

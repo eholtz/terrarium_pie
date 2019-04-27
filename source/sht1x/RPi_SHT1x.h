@@ -32,7 +32,7 @@ This is a derivative work based on
 #define SHT1x_DELAY delayMicroseconds(2)
 
 // Define the Raspberry Pi GPIO Pin for the SHT1x clock
-#define RPI_GPIO_SHT1x_SCK RPI_GPIO_P1_23
+#define RPI_GPIO_SHT1x_SCK RPI_GPIO_P1_16
 
 /* Macros to toggle port state of SCK line. */
 #define SHT1x_SCK_LO bcm2835_gpio_write(RPI_GPIO_SHT1x_SCK, LOW)

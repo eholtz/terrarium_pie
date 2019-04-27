@@ -18,7 +18,7 @@ int main() {
   while (true) {
     now = time(0);
     nowt = localtime(&now);
-    if (nowt->tm_hour == 12) {
+    if ((nowt->tm_hour >= 12) && (nowt->tm_hour <= 13)) {
       if (state == 0) {
         cout << "It's noon now" << endl;
       }
@@ -29,7 +29,17 @@ int main() {
       }
       state = 0;
     }
-    filename = "/dev/shm/pin_7";
+    // spot
+    filename = "/dev/shm/pin_27";
+    filehandler.open(filename.c_str());
+    if (filehandler.is_open()) {
+      filehandler << state << endl;
+      filehandler.close();
+    } else {
+      cout << "ERROR: could not write to " << filename << endl;
+    }
+    // fan
+    filename = "/dev/shm/pin_25";
     filehandler.open(filename.c_str());
     if (filehandler.is_open()) {
       filehandler << state << endl;

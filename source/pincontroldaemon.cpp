@@ -7,17 +7,15 @@
 using namespace std;
 
 // number of known pins
-#define MAX_PIN 6
+#define MAX_PIN 4
 
 // pins to control
 // wiring pi pins
 static unsigned short known_pins[MAX_PIN] = {
-    0,  // spot corner
-    2,  // heating coil
-    7,  // spot stone
-    8,  // daylight tubes
-    9,  // 12v ac for dusk/dawn
-    12, // rain machine
+    27,  // sun spot
+    29,  // daylight tubes
+    25,  // fan
+    28,  // 12v ac for dusk/dawn
 };
 
 int main() {
@@ -37,6 +35,7 @@ int main() {
   }
 
   // main loop
+  int status = 0;
   while (true) {
     for (i = 0; i < MAX_PIN; i++) {
       snprintf(buffer, sizeof(buffer), "/dev/shm/pin_%d", known_pins[i]);
@@ -49,8 +48,9 @@ int main() {
           state = 0;
         }
         snprintf(buffer, sizeof(buffer), "/usr/bin/gpio write %d %d", known_pins[i], state);
-        system(buffer);
+        status = system(buffer);
         pininput.close();
+	// cout << "forcing " << state << " on pin " << known_pins[i] << " with status code " << status << endl; 
       }
     }
     // sleep for 5 seconds

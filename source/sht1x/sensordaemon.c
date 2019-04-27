@@ -35,13 +35,14 @@ Sensirion SHT11 Temperature and Humidity Sensor interfaced to Raspberry Pi GPIO 
 #define NUMMEASURES 7
 
 // number of sensors
-#define SENSORCOUNT 2
+#define SENSORCOUNT 1
 
 // pins to control
 // wiring pi pins
 static unsigned short sensor_pins[SENSORCOUNT] = {
-    RPI_GPIO_P1_16, // sensor top
-    RPI_GPIO_P1_18  // sensor edge
+    RPI_V2_GPIO_P1_22
+//    RPI_V2_GPIO_P1_24,
+//    RPI_V2_GPIO_P1_18
 };
 
 float calcsd(float data[], float min, float max);
@@ -166,6 +167,7 @@ int main() {
             th(sensor_pins[sensornum], buffer, sizeof(buffer));
             fprintf(fp,"%s\n",buffer);
             fprintf(slfp,"%s\n",buffer);
+	    printf("%s\n",buffer);
           }
           fclose(slfp);
         }
