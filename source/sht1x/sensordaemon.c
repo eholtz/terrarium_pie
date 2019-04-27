@@ -1,8 +1,7 @@
 /*
 Daemon to read one or more SHT1x sensors
 by Eike Holtz / https://github.com/eholtz
-Compile with: gcc -lm -I../libs/bcm2835-1.55/src/ -o sensordaemon ../libs/bcm2835-1.55/src/bcm2835.c ./RPi_SHT1x.c
-sensordaemon.c
+Compile with: gcc -lm -I../libs/bcm2835-1.55/src/ -o sensordaemon ../libs/bcm2835-1.55/src/bcm2835.c ./RPi_SHT1x.c sensordaemon.c
 
 Raspberry Pi SHT1x communication library.
 By:      John Burns (www.john.geek.nz)
@@ -142,26 +141,36 @@ int main() {
   // mkdir did not work for some strange reason, so I'm lazy
   snprintf(buffer, sizeof(buffer), "mkdir -p /dev/shm/sensors/");
   system(buffer);
+  printf("executed %s\n",buffer);
 
   while (1 == 1) {
     // Initialise the Raspberry Pi GPIO
     if (!bcm2835_init()) {
-      printf("ERROR: Could not init bcm2835!");
+      printf("ERROR: Could not init bcm2835!\n");
       failcounter++;
     } else {
       now = time(0);
       sprintf(buffer, "/dev/shm/sensors/%d", now);
       FILE *fp = fopen(buffer, "w");
       if (fp == NULL) {
-        printf("ERROR: Could not open %s", buffer);
+        printf("ERROR: Could not open %s\n", buffer);
       } else {
-        for (int sensornum = 0; sensornum < SENSORCOUNT; sensornum++) {
-          // printf("reading sensor number %d\n", sensornum);
-          th(sensor_pins[sensornum], buffer, sizeof(buffer));
-          fprintf(fp,"%s\n",buffer);
+        sprintf(buffer,"/dev/shm/sensors_last");
+        FILE *slfp = fopen(buffer, "w");
+        if (slfp == NULL) {
+          printf("ERROR: Could not open %s\n", buffer);
+        } else {
+//          fprintf(slfp,"pin temperature humidity\n");
+          for (int sensornum = 0; sensornum < SENSORCOUNT; sensornum++) {
+            // printf("reading sensor number %d\n", sensornum);
+            th(sensor_pins[sensornum], buffer, sizeof(buffer));
+            fprintf(fp,"%s\n",buffer);
+            fprintf(slfp,"%s\n",buffer);
+          }
+          fclose(slfp);
         }
+        fclose(fp);
       }
-      fclose(fp);
       failcounter = 0;
     }
     // if we did not get any value within the last
