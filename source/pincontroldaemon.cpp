@@ -12,10 +12,10 @@ using namespace std;
 // pins to control
 // wiring pi pins
 static unsigned short known_pins[MAX_PIN] = {
-    0,  // spot corner
-    2,  // heating coil
+    0,  // daylight tube3
+    2,  // daylight tube2
     7,  // spot stone
-    8,  // daylight tubes
+    8,  // daylight tube1
     9,  // 12v ac for dusk/dawn
     12, // rain machine
 };

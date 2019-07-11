@@ -114,6 +114,24 @@ void setlights(double dayhour, double dawn, double rise, double set, double dusk
     cout << "ERROR: could not write to " << filename << endl;
   }
 
+  filename = "/dev/shm/pin_0";
+  filehandler.open(filename.c_str());
+  if (filehandler.is_open()) {
+    filehandler << (int)lights << endl;
+    filehandler.close();
+  } else {
+    cout << "ERROR: could not write to " << filename << endl;
+  }
+
+  filename = "/dev/shm/pin_2";
+  filehandler.open(filename.c_str());
+  if (filehandler.is_open()) {
+    filehandler << (int)lights << endl;
+    filehandler.close();
+  } else {
+    cout << "ERROR: could not write to " << filename << endl;
+  }
+
   filename = "/dev/shm/pin_9";
   filehandler.open(filename.c_str());
   if (filehandler.is_open()) {

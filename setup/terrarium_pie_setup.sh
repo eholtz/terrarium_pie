@@ -42,23 +42,23 @@ sudo systemctl restart chrony
 # install pi-blaster
 sudo apt -y install autoconf
 sudo apt -y install clang
-#if [ -e /dev/pi-blaster ]; then
-#  echo "pi-blaster already installed"
-#else
-#  git clone https://github.com/sarfata/pi-blaster.git
-#  cd pi-blaster
-#  git checkout -- pi-blaster.c
-#  # my setup for the pins 14,15,18
-#  sed -i "/static.uint8_t.known_pins.MAX_CHANNELS./,/;/c\
-#  static uint8_t known_pins[MAX_CHANNELS] = { 14, 15, 18 };" pi-blaster.c
-#  ./autogen.sh
-#  ./configure
-#  make
-#  sudo make install
-#  sudo systemctl enable pi-blaster
-#  sudo systemctl start pi-blaster
-#  cd /tmp/setup
-#fi
+if [ -e /dev/pi-blaster ]; then
+  echo "pi-blaster already installed"
+else
+  git clone https://github.com/sarfata/pi-blaster.git
+  cd pi-blaster
+  git checkout -- pi-blaster.c
+  # my setup for the pins 14,15,18
+  sed -i "/static.uint8_t.known_pins.MAX_CHANNELS./,/;/c\
+  static uint8_t known_pins[MAX_CHANNELS] = { 14, 15, 18 };" pi-blaster.c
+  ./autogen.sh
+  ./configure
+  make
+  sudo make install
+  sudo systemctl enable pi-blaster
+  sudo systemctl start pi-blaster
+  cd /tmp/setup
+fi
 
 # deamons
 sudo apt -y install wiringpi
