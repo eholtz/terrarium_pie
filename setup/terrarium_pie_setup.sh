@@ -18,7 +18,7 @@ cp /etc/fstab /tmp/fstab
 cp /etc/fstab ~/fstab.$(date +%F-%T)
 echo "tmpfs /var/log tmpfs size=16M 0 0" >>/tmp/fstab
 echo "tmpfs /tmp tmpfs size=128M 0 0" >>/tmp/fstab
-echo "10.0.0.2:/mnt/cryptttbraid/terra1 /mnt/nfs/ nfs intr,soft,timeo=60,noauto 0 0" >>/tmp/fstab
+echo "10.0.0.2:/mnt/cryptttbraid/terra5 /mnt/nfs/ nfs intr,soft,timeo=60,noauto 0 0" >>/tmp/fstab
 sudo chown root: /tmp/fstab
 sudo mv /tmp/fstab /etc/
 sudo mount -a
@@ -42,23 +42,23 @@ sudo systemctl restart chrony
 # install pi-blaster
 sudo apt -y install autoconf
 sudo apt -y install clang
-if [ -e /dev/pi-blaster ]; then
-  echo "pi-blaster already installed"
-else
-  git clone https://github.com/sarfata/pi-blaster.git
-  cd pi-blaster
-  git checkout -- pi-blaster.c
-  # my setup for the pins 14,15,18
-  sed -i "/static.uint8_t.known_pins.MAX_CHANNELS./,/;/c\
-  static uint8_t known_pins[MAX_CHANNELS] = { 14, 15, 18 };" pi-blaster.c
-  ./autogen.sh
-  ./configure
-  make
-  sudo make install
-  sudo systemctl enable pi-blaster
-  sudo systemctl start pi-blaster
-  cd /tmp/setup
-fi
+#if [ -e /dev/pi-blaster ]; then
+#  echo "pi-blaster already installed"
+#else
+#  git clone https://github.com/sarfata/pi-blaster.git
+#  cd pi-blaster
+#  git checkout -- pi-blaster.c
+#  # my setup for the pins 14,15,18
+#  sed -i "/static.uint8_t.known_pins.MAX_CHANNELS./,/;/c\
+#  static uint8_t known_pins[MAX_CHANNELS] = { 14, 15, 18 };" pi-blaster.c
+#  ./autogen.sh
+#  ./configure
+#  make
+#  sudo make install
+#  sudo systemctl enable pi-blaster
+#  sudo systemctl start pi-blaster
+#  cd /tmp/setup
+#fi
 
 # deamons
 sudo apt -y install wiringpi
@@ -89,19 +89,19 @@ for d in $daemons; do
 done
 
 # sht1x setup
-mkdir -p $curd/../source/libs/
-cd $curd/../source/libs/
-[ ! -e bcm2835-1.55.tar.gz ] && curl -O "http://www.airspayce.com/mikem/bcm2835/bcm2835-1.55.tar.gz"
-[ ! -d bcm2835-1.55 ] && tar xvzf bcm2835-1.55.tar.gz
-cd $curd/../source/sht1x/
-gcc -lm -I../libs/bcm2835-1.55/src/ -o $curd/../bin/sensordaemon ../libs/bcm2835-1.55/src/bcm2835.c ./RPi_SHT1x.c sensordaemon.c
-cp /tmp/template.service /tmp/sensordaemon.service
-sed -i "s;PATH;$(readlink -f $curd/../bin/sensordaemon);" /tmp/sensordaemon.service
-sed -i "s;DAEMON;sensordaemon;" /tmp/sensordaemon.service
-sudo mv /tmp/sensordaemon.service /etc/systemd/system/sensordaemon.service
-sudo systemctl daemon-reload
-sudo systemctl enable sensordaemon
-sudo systemctl restart sensordaemon
+#mkdir -p $curd/../source/libs/
+#cd $curd/../source/libs/
+#[ ! -e bcm2835-1.55.tar.gz ] && curl -O "http://www.airspayce.com/mikem/bcm2835/bcm2835-1.55.tar.gz"
+#[ ! -d bcm2835-1.55 ] && tar xvzf bcm2835-1.55.tar.gz
+#cd $curd/../source/sht1x/
+#gcc -lm -I../libs/bcm2835-1.55/src/ -o $curd/../bin/sensordaemon ../libs/bcm2835-1.55/src/bcm2835.c ./RPi_SHT1x.c sensordaemon.c
+#cp /tmp/template.service /tmp/sensordaemon.service
+#sed -i "s;PATH;$(readlink -f $curd/../bin/sensordaemon);" /tmp/sensordaemon.service
+#sed -i "s;DAEMON;sensordaemon;" /tmp/sensordaemon.service
+#sudo mv /tmp/sensordaemon.service /etc/systemd/system/sensordaemon.service
+#sudo systemctl daemon-reload
+#sudo systemctl enable sensordaemon
+#sudo systemctl restart sensordaemon
 
 # 24/7 according to https://www.datenreise.de/raspberry-pi-stabiler-24-7-dauerbetrieb/
 
@@ -126,14 +126,14 @@ sudo systemctl start watchdog
 sudo apt -y autoremove
 
 # install crontab
-cronfilepath="$(readlink -f "$curd/../cron/")"
-setuppath="$(readlink -f "$curd/../setup/")"
-echo "*    *   * * * $(whoami) $cronfilepath/terracam.sh" >/tmp/terrarium_pie
-echo "46   23  * * * $(whoami) $cronfilepath/create_gallery.sh" >>/tmp/terrarium_pie
-echo "*/3  *   * * * $(whoami) $cronfilepath/update_rrd.sh" >>/tmp/terrarium_pie
-echo "*/15 *   * * * $(whoami) $cronfilepath/graph_rrd.sh" >>/tmp/terrarium_pie
-echo "2    *   * * * $(whoami) timeout 5  $cronfilepath/update_web.sh > /mnt/nfs/include" >>/tmp/terrarium_pie
-echo "23   23  * * * root timeout 5 cp $setuppath/image.php /mnt/nfs/" >>/tmp/terrarium_pie
-echo "23   23  * * * root timeout 5 cp $setuppath/index.php /mnt/nfs/" >>/tmp/terrarium_pie
-sudo chown root: /tmp/terrarium_pie
-sudo mv /tmp/terrarium_pie /etc/cron.d/
+#cronfilepath="$(readlink -f "$curd/../cron/")"
+#setuppath="$(readlink -f "$curd/../setup/")"
+#echo "*    *   * * * $(whoami) $cronfilepath/terracam.sh" >/tmp/terrarium_pie
+#echo "46   23  * * * $(whoami) $cronfilepath/create_gallery.sh" >>/tmp/terrarium_pie
+#echo "*/3  *   * * * $(whoami) $cronfilepath/update_rrd.sh" >>/tmp/terrarium_pie
+#echo "*/15 *   * * * $(whoami) $cronfilepath/graph_rrd.sh" >>/tmp/terrarium_pie
+#echo "2    *   * * * $(whoami) timeout 5  $cronfilepath/update_web.sh > /mnt/nfs/include" >>/tmp/terrarium_pie
+#echo "23   23  * * * root timeout 5 cp $setuppath/image.php /mnt/nfs/" >>/tmp/terrarium_pie
+#echo "23   23  * * * root timeout 5 cp $setuppath/index.php /mnt/nfs/" >>/tmp/terrarium_pie
+#sudo chown root: /tmp/terrarium_pie
+#sudo mv /tmp/terrarium_pie /etc/cron.d/
