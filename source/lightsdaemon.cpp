@@ -178,29 +178,43 @@ struct julian calcjtimes(time_t t) {
   double b = 2 - a + floor(a / 4);
   double jd = floor(365.25 * (y + 4716)) + floor(30.6001 * (m + 1)) + d + b - 1524.5;
 
+  cout << "y-m-d " << y << "-" << m << "-" << d << endl;
+  cout << "a " << a << endl;
+  cout << "b " << b << endl;
+  cout << "jd " << jd << endl;
+
   // calculation of sunrise based on
   // https://en.wikipedia.org/wiki/Sunrise_equation
   // current julian day
   double n = jd - 2451545 + 0.0008;
+  cout << "n " << n << endl;
   // mean solar noon
   double js = low / 360 + n;
+  cout << "js " << js << endl;
   // mean anomaly
   double ma = fmod((357.5291 + 0.98560028 * js), 360);
+  cout << "ma " << ma << endl;
   // equation of the center
   double c = 1.9148 * sin(ma * torad) + 0.02 * sin(2 * ma * torad) + 0.0003 * sin(3 * ma * torad);
+  cout << "c " << c << endl;
   // ecliptic longitude
   double l = fmod((ma + c + 180 + 102.9372), 360);
+  cout << "l " << l << endl;
   // solar transit - it seems they have forgotten the 2451545.5 on the wikipedia
   // page. or i did not understand correctly.
   double jt = 2451545.5 + js + 0.0053 * sin(ma * torad) - 0.0069 * sin(2 * l * torad);
+  cout << "jt " << jt << endl;
   // declination of the sun
   double de = asin(sin(l * torad) * sin(23.44 * torad)) * todeg;
+  cout << "de " << de << endl;
   // hour angle
-  double w =
-      acos((sin(-0.83 * torad) - sin(lam * torad) * sin(de * torad)) / (cos(lam * torad) * cos(de * torad))) * todeg;
+  double w = acos((sin(-0.83 * torad) - sin(lam * torad) * sin(de * torad)) / (cos(lam * torad) * cos(de * torad))) * todeg;
+  cout << "w " << w << endl;
 
   double jset = jt + w / 360;
   double jrise = jt - w / 360;
+  cout << "jset " << jset << endl;
+  cout << "jrise " << jrise << endl;
 
   struct julian cjt = {jrise, jset};
 
