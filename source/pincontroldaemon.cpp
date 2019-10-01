@@ -7,17 +7,14 @@
 using namespace std;
 
 // number of known pins
-#define MAX_PIN 6
+#define MAX_PIN 3
 
 // pins to control
 // wiring pi pins
 static unsigned short known_pins[MAX_PIN] = {
-    0,  // daylight tube3
-    2,  // daylight tube2
-    7,  // spot stone
-    8,  // daylight tube1
-    9,  // 12v ac for dusk/dawn
-    12, // rain machine
+    0,  // tube mid
+    2,  // tube right
+    8,  // tube left
 };
 
 int main() {
@@ -33,6 +30,9 @@ int main() {
   for (i = 0; i < MAX_PIN; i++) {
     cout << "init pin " << known_pins[i] << " for output" << endl;
     snprintf(buffer, sizeof(buffer), "/usr/bin/gpio mode %d out", known_pins[i]);
+    system(buffer);
+    cout << "writing 1 to pin " << known_pins[i] << endl;
+    snprintf(buffer, sizeof(buffer), "/usr/bin/gpio write %d 1", known_pins[i]);
     system(buffer);
   }
 

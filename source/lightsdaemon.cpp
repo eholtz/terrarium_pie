@@ -1,6 +1,6 @@
 #include <fstream>
 #include <iostream>
-#include <math.h>
+#include <cmath>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
@@ -48,9 +48,9 @@ void setlights(double dayhour, double dawn, double rise, double set, double dusk
 
   // first check if the main lights should be turned on or off
   if ((dayhour < rise) || (dayhour > set)) {
-    lights = 0;
-  } else {
     lights = 1;
+  } else {
+    lights = 0;
   }
 
   // now check if we are in sunrise
@@ -114,14 +114,14 @@ void setlights(double dayhour, double dawn, double rise, double set, double dusk
     cout << "ERROR: could not write to " << filename << endl;
   }
 
-  filename = "/dev/shm/pin_0";
+/*  filename = "/dev/shm/pin_0";
   filehandler.open(filename.c_str());
   if (filehandler.is_open()) {
     filehandler << (int)lights << endl;
     filehandler.close();
   } else {
     cout << "ERROR: could not write to " << filename << endl;
-  }
+  }*/
 
   filename = "/dev/shm/pin_2";
   filehandler.open(filename.c_str());
@@ -132,14 +132,14 @@ void setlights(double dayhour, double dawn, double rise, double set, double dusk
     cout << "ERROR: could not write to " << filename << endl;
   }
 
-  filename = "/dev/shm/pin_9";
+/*  filename = "/dev/shm/pin_9";
   filehandler.open(filename.c_str());
   if (filehandler.is_open()) {
     filehandler << (int)riseordawn << endl;
     filehandler.close();
   } else {
     cout << "ERROR: could not write to " << filename << endl;
-  }
+  }*/
 
   if ((red > 0) && (red < 1)) {
     filename = "/dev/pi-blaster";
@@ -174,14 +174,16 @@ struct julian calcjtimes(time_t t) {
     y--;
   }
   int d = current_time->tm_mday;
-  int a = floor((y) / 100);
-  double b = 2 - a + floor(a / 4);
-  double jd = floor(365.25 * (y + 4716)) + floor(30.6001 * (m + 1)) + d + b - 1524.5;
+  int a = int(double (y) / 100);
+  double b = 2 - double(a) + int(double(a) / 4);
+  double jd = int(365.25 * (y + 4716)) + int(30.6001 * (m + 1)) + d + b - 1524.5;
 
   cout << "y-m-d " << y << "-" << m << "-" << d << endl;
   cout << "a " << a << endl;
   cout << "b " << b << endl;
   cout << "jd " << jd << endl;
+  cout << "low " << low << endl;
+  cout << "lam " << lam << endl;
 
   // calculation of sunrise based on
   // https://en.wikipedia.org/wiki/Sunrise_equation
@@ -231,10 +233,10 @@ int main() {
 
   double sunrise;
   double sunset;
-  double lightson;
-  double lightsoff;
-  double dawn;
-  double dusk;
+  double lightson=0;
+  double lightsoff=0;
+  double dawn=0;
+  double dusk=0;
 
   // better float precision for debugging purposes
   std::cout.setf(std::ios_base::fixed, std::ios_base::floatfield);
@@ -261,8 +263,8 @@ int main() {
       // the dawn and dusk will spread evenly before and after
       // the actal sunrise
 
-      sunrise = (jt.jrise - .5 - floor(jt.jrise - .5)) + mstep * 60;
-      sunset = (jt.jset - .5 - floor(jt.jset - .5)) + mstep * 60;
+      sunrise = (jt.jrise - .5 - int(jt.jrise - .5)) + mstep * 60;
+      sunset = (jt.jset - .5 - int(jt.jset - .5)) + mstep * 60;
       lightson = sunrise + riseduration / 2;
       lightsoff = sunset - riseduration / 2;
       dawn = sunrise - riseduration / 2;
