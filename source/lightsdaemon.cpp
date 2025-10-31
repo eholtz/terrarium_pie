@@ -31,8 +31,8 @@ struct Location {
 };
 
 const Location LOCATIONS[] = {
-    {"Magdeburg", 52.1308, 11.6288, 1.0, 55.0},  // Elevation ~55m
-    {"Madagascar", -23.3500, 43.6667, 3.0, 50.0} // Elevation ~50m
+    {"Velpke", 52.40667, 10.94147, 1.0, 80.0},  // Elevation ~55m
+    {"MadagascarEquivalent", 23.3500, 10.94147, 1.0, 80.0} // Elevation ~50m
 };
 
 struct SunTimes {
@@ -259,15 +259,15 @@ Location get_location_from_env() {
     
     if (env_location != nullptr) {
         string location_str(env_location);
-        if (location_str == "Madagascar" || location_str == "madagascar" || location_str == "2") {
-            cout << "Using Madagascar location from environment variable" << endl;
+        if (location_str == "MadagascarEquivalent" || location_str == "MadagascarEquivalent" || location_str == "2") {
+            cout << "Using MadagascarEquivalent location from environment variable" << endl;
             return LOCATIONS[1];
         }
     }
     
-    // Default to Magdeburg
-    cout << "Using default location: Magdeburg" << endl;
-    cout << "Set TERRARIUM_LOCATION environment variable to 'Madagascar' to change location" << endl;
+    // Default to Velpke
+    cout << "Using default location: Velpke" << endl;
+    cout << "Set TERRARIUM_LOCATION environment variable to 'MadagascarEquivalent' to change location" << endl;
     return LOCATIONS[0];
 }
 
@@ -289,7 +289,7 @@ void cleanup() {
 }
 
 int main() {
-    cout << "Starting Terrarium Light Daemon with NREL SPA Algorithm..." << endl;
+    cout << "Starting Terrarium Light Daemon ..." << endl;
     
     // Setup signal handlers for graceful shutdown
     struct sigaction sa;
