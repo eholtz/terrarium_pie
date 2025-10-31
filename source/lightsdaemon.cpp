@@ -1,303 +1,388 @@
 #include <fstream>
 #include <iostream>
 #include <cmath>
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include <string>
-#include <time.h>
+#include <ctime>
 #include <unistd.h>
+#include <csignal>
+#include <cstring>
 
 using namespace std;
 
-double pi = 3.141592653589793238463;
-double todeg = 180.0 / pi;
-double torad = pi / 180.0;
-double hstep = 1.0 / 24;
-double mstep = 1.0 / 1440;
-double sstep = 1.0 / 86400;
+const double PI = 3.141592653589793238463;
+const double TODEG = 180.0 / PI;
+const double TORAD = PI / 180.0;
+const double HSTEP = 1.0 / 24;
+const double MSTEP = 1.0 / 1440;
+const double SSTEP = 1.0 / 86400;
+const double RISEDURATION = SSTEP * 5400;
 
-double riseduration = sstep * 5400;
+// Global flag for graceful shutdown
+volatile sig_atomic_t shutdown_flag = 0;
 
-struct julian {
-  double jrise;
-  double jset;
+struct Location {
+    string name;
+    double latitude;
+    double longitude;
+    double timezone; // Stunden von UTC
+    double elevation; // Meter über Meeresspiegel
 };
 
-// display fraction of a day in hours and minutes, but return a string
+const Location LOCATIONS[] = {
+    {"Velpke", 52.40667, 10.94147, 1.0, 80.0},  // Elevation ~55m
+    {"MadagascarEquivalent", 23.3500, 10.94147, 1.0, 80.0} // Elevation ~50m
+};
+
+struct SunTimes {
+    double sunrise;
+    double sunset;
+    double dawn;
+    double dusk;
+};
+
+// Signal handler for graceful shutdown
+void signal_handler(int signal) {
+    shutdown_flag = 1;
+}
+
 string j2h(double jd) {
-  int hr, mn;
-  char buffer[10];
-  hr = (int)(jd * 24);
-  mn = (int)(((jd * 24) - (double(hr))) * 60);
-  snprintf(buffer, sizeof(buffer), "%02d:%02d", hr, mn);
-  return buffer;
+    int hr, mn;
+    char buffer[10];
+    hr = static_cast<int>(jd * 24);
+    mn = static_cast<int>(((jd * 24) - static_cast<double>(hr)) * 60);
+    snprintf(buffer, sizeof(buffer), "%02d:%02d", hr, mn);
+    return buffer;
+}
+
+bool write_to_file(const string& filename, const string& content) {
+    ofstream filehandler(filename.c_str());
+    if (!filehandler.is_open()) {
+        cerr << "ERROR: could not write to " << filename << endl;
+        return false;
+    }
+    filehandler << content;
+    filehandler.close();
+    return true;
 }
 
 void setlights(double dayhour, double dawn, double rise, double set, double dusk) {
-  bool lights;
-  bool riseordawn;
-  double riseduration_red = riseduration;
-  double riseduration_green = riseduration * 0.8;
-  double riseduration_blue = riseduration * 0.6;
-  double rperc = 1 / riseduration_red;
-  double gperc = 1 / riseduration_green;
-  double bperc = 1 / riseduration_blue;
-  double red = 0, green = 0, blue = 0;
-  ofstream filehandler;
-  string filename;
+    bool lights = false;
+    bool riseordawn = false;
+    
+    const double riseduration_red = RISEDURATION;
+    const double riseduration_green = RISEDURATION * 0.8;
+    const double riseduration_blue = RISEDURATION * 0.6;
+    
+    const double rperc = 1 / riseduration_red;
+    const double gperc = 1 / riseduration_green;
+    const double bperc = 1 / riseduration_blue;
+    
+    double red = 0.0, green = 0.0, blue = 0.0;
 
-  // first check if the main lights should be turned on or off
-  if ((dayhour < rise) || (dayhour > set)) {
-    lights = 1;
-  } else {
-    lights = 0;
-  }
+    // Determine if main lights should be on or off
+    lights = (dayhour >= rise) && (dayhour <= set);
 
-  // now check if we are in sunrise
-  if ((dayhour >= dawn) && (dayhour <= (rise + mstep))) {
-    riseordawn = 1;
-    red = (dayhour - dawn) * rperc;
-    if (dayhour >= (dawn + (riseduration_red - riseduration_green))) {
-      green = (dayhour - (dawn + (riseduration_red - riseduration_green))) * gperc;
+    // Handle sunrise/sunset transitions
+    if ((dayhour >= dawn) && (dayhour <= (rise + MSTEP))) {
+        // Sunrise
+        riseordawn = true;
+        red = (dayhour - dawn) * rperc;
+        
+        if (dayhour >= (dawn + (riseduration_red - riseduration_green))) {
+            green = (dayhour - (dawn + (riseduration_red - riseduration_green))) * gperc;
+        }
+        if (dayhour >= (dawn + (riseduration_red - riseduration_blue))) {
+            blue = (dayhour - (dawn + (riseduration_red - riseduration_blue))) * bperc;
+        }
+    } else if ((dayhour >= (set - MSTEP)) && (dayhour <= dusk)) {
+        // Sunset
+        riseordawn = true;
+        red = 1 - ((dayhour - (dusk - riseduration_red)) * rperc);
+        green = 1 - ((dayhour - (dusk - riseduration_red)) * gperc);
+        blue = 1 - ((dayhour - (dusk - riseduration_red)) * bperc);
     }
-    if (dayhour >= (dawn + (riseduration_red - riseduration_blue))) {
-      blue = (dayhour - (dawn + (riseduration_red - riseduration_blue))) * bperc;
+
+    // Clamp values to [0, 1]
+    red = max(0.0, min(1.0, red));
+    green = max(0.0, min(1.0, green));
+    blue = max(0.0, min(1.0, blue));
+
+    // Write values to system
+    write_to_file("/dev/shm/pin_8", to_string(static_cast<int>(lights)));
+    write_to_file("/dev/shm/pin_2", to_string(static_cast<int>(lights)));
+
+    // Write to pi-blaster if needed
+    if ((red > 0) && (red < 1)) {
+        ofstream filehandler("/dev/pi-blaster");
+        if (filehandler.is_open()) {
+            filehandler << "14=" << red << endl;
+            filehandler << "15=" << green << endl;
+            filehandler << "18=" << blue << endl;
+        } else {
+            cerr << "ERROR: could not write to /dev/pi-blaster" << endl;
+        }
     }
-  } else if ((dayhour >= (set - mstep)) && (dayhour <= dusk)) {
-    // or are we in sunset
-    red = 1 - ((dayhour - (dusk - riseduration_red)) * rperc);
-    green = 1 - ((dayhour - (dusk - riseduration_red)) * gperc);
-    blue = 1 - ((dayhour - (dusk - riseduration_red)) * bperc);
-    riseordawn = 1;
-  } else {
-    // or no twilight
-    riseordawn = 0;
-    red = green = blue = 0;
-  }
-
-  // failsafe if calculations took a wrong direction somewhere
-  if (red > 1) {
-    red = 1;
-  }
-  if (green > 1) {
-    green = 1;
-  }
-  if (blue > 1) {
-    blue = 1;
-  }
-  if (red < 0) {
-    red = 0;
-  }
-  if (green < 0) {
-    green = 0;
-  }
-  if (blue < 0) {
-    blue = 0;
-  }
-
-  /* // debugging
-  cout << "dayhour " << dayhour << ", lights " << lights << ", riseordawn "
-       << riseordawn << ", red " << red << ", green " << green << ", blue "
-       << blue << endl;
-       */
-
-  // write the calculated values to the system
-  // the pins are hardcoded - that's not very
-  // nice, but it works...
-
-  filename = "/dev/shm/pin_8";
-  filehandler.open(filename.c_str());
-  if (filehandler.is_open()) {
-    filehandler << (int)lights << endl;
-    filehandler.close();
-  } else {
-    cout << "ERROR: could not write to " << filename << endl;
-  }
-
-/*  filename = "/dev/shm/pin_0";
-  filehandler.open(filename.c_str());
-  if (filehandler.is_open()) {
-    filehandler << (int)lights << endl;
-    filehandler.close();
-  } else {
-    cout << "ERROR: could not write to " << filename << endl;
-  }*/
-
-  filename = "/dev/shm/pin_2";
-  filehandler.open(filename.c_str());
-  if (filehandler.is_open()) {
-    filehandler << (int)lights << endl;
-    filehandler.close();
-  } else {
-    cout << "ERROR: could not write to " << filename << endl;
-  }
-
-/*  filename = "/dev/shm/pin_9";
-  filehandler.open(filename.c_str());
-  if (filehandler.is_open()) {
-    filehandler << (int)riseordawn << endl;
-    filehandler.close();
-  } else {
-    cout << "ERROR: could not write to " << filename << endl;
-  }*/
-
-  if ((red > 0) && (red < 1)) {
-    filename = "/dev/pi-blaster";
-    filehandler.open(filename.c_str());
-    if (filehandler.is_open()) {
-      filehandler << "14=" << red << endl;
-      filehandler << "15=" << green << endl;
-      filehandler << "18=" << blue << endl;
-      filehandler.close();
-    } else {
-      cout << "ERROR: could not write to " << filename << endl;
-    }
-  }
 }
 
-struct julian calcjtimes(time_t t) {
+// NREL SPA Algorithmus - vereinfachte Version für Sonnenauf-/untergang
+double calculate_solar_declination(double jd) {
+    // Tageszahl seit J2000.0
+    double n = jd - 2451545.0;
+    
+    // Mittlere ekliptikale Länge (Grad)
+    double L = fmod(280.460 + 0.9856474 * n, 360.0);
+    if (L < 0) L += 360.0;
+    
+    // Mittlere Anomalie (Grad)
+    double g = fmod(357.528 + 0.9856003 * n, 360.0) * TORAD;
+    if (g < 0) g += 2 * PI;
+    
+    // Ekliptikale Länge (Grad)
+    double lambda = L + 1.915 * sin(g) + 0.020 * sin(2 * g);
+    
+    // Schiefe der Ekliptik (Grad)
+    double epsilon = 23.439 - 0.0000004 * n;
+    
+    // Deklination (Grad)
+    double delta = asin(sin(epsilon * TORAD) * sin(lambda * TORAD)) * TODEG;
+    
+    return delta;
+}
 
-  struct tm *current_time = gmtime(&t);
-  // longitude west of magdeburg
-  double low = -11.6322;
-  // latitude of magdeburg
-  double lam = 52.1243;
-  // latitude of madagascar (if it were on northern hemishpere)
-  // double lam=22.5;
+double calculate_equation_of_time(double jd) {
+    // Tageszahl seit J2000.0
+    double n = jd - 2451545.0;
+    
+    // Mittlere ekliptikale Länge (Grad)
+    double L = fmod(280.460 + 0.9856474 * n, 360.0);
+    if (L < 0) L += 360.0;
+    
+    // Mittlere Anomalie (Grad)
+    double g = fmod(357.528 + 0.9856003 * n, 360.0) * TORAD;
+    if (g < 0) g += 2 * PI;
+    
+    // Ekliptikale Länge (Grad)
+    double lambda = L + 1.915 * sin(g) + 0.020 * sin(2 * g);
+    
+    // Rektaszension (Grad)
+    double epsilon = 23.439 - 0.0000004 * n;
+    double alpha = atan2(cos(epsilon * TORAD) * sin(lambda * TORAD), 
+                        cos(lambda * TORAD)) * TODEG;
+    if (alpha < 0) alpha += 360.0;
+    
+    // Zeitgleichung (Minuten)
+    double eot = 4.0 * (L - alpha); // Minuten
+    
+    return eot;
+}
 
-  // calculate julian day number based on
-  // https://de.wikipedia.org/wiki/Julianisches_Datum
-  int m = current_time->tm_mon + 1;
-  int y = current_time->tm_year + 1900;
-  if (m <= 2) {
-    m += 12;
-    y--;
-  }
-  int d = current_time->tm_mday;
-  int a = int(double (y) / 100);
-  double b = 2 - double(a) + int(double(a) / 4);
-  double jd = int(365.25 * (y + 4716)) + int(30.6001 * (m + 1)) + d + b - 1524.5;
+// Berechnung des Sonnenauf- und untergangs nach NREL SPA
+SunTimes calculate_sun_times_nrel(time_t t, const Location& loc) {
+    struct tm* utc_time = gmtime(&t);
+    if (!utc_time) {
+        cerr << "ERROR: Could not convert time" << endl;
+        return {0, 0, 0, 0};
+    }
 
-  cout << "y-m-d " << y << "-" << m << "-" << d << endl;
-  cout << "a " << a << endl;
-  cout << "b " << b << endl;
-  cout << "jd " << jd << endl;
-  cout << "low " << low << endl;
-  cout << "lam " << lam << endl;
+    int year = utc_time->tm_year + 1900;
+    int month = utc_time->tm_mon + 1;
+    int day = utc_time->tm_mday;
+    
+    // Julianisches Datum für Mittag
+    int a = (14 - month) / 12;
+    int y = year + 4800 - a;
+    int m = month + 12 * a - 3;
+    
+    double jd = day + (153 * m + 2) / 5.0 + 365.0 * y + y / 4.0 - y / 100.0 + y / 400.0 - 32045.5;
+    
+    // Sonnendeklination für diesen Tag
+    double delta = calculate_solar_declination(jd) * TORAD;
+    
+    // Zeitgleichung (in Stunden umrechnen)
+    double eot_hours = calculate_equation_of_time(jd) / 60.0;
+    
+    double lat_rad = loc.latitude * TORAD;
+    
+    // Sonnenwinkel für verschiedene Ereignisse (in Grad)
+    double sunrise_angle = -0.833;  // Sonnenaufgang (mit Refraktion)
+    double civil_twilight = -6.0;   // Zivile Dämmerung
+    
+    // Berechnung des Stundenwinkels für jedes Ereignis
+    auto calculate_hour_angle = [&](double sun_angle_deg) -> double {
+        double sun_angle_rad = sun_angle_deg * TORAD;
+        double cos_ha = (sin(sun_angle_rad) - sin(lat_rad) * sin(delta)) / 
+                       (cos(lat_rad) * cos(delta));
+        
+        // Überprüfung auf Polartag/Polarnacht
+        if (cos_ha <= -1.0) return PI;      // Polarnacht
+        if (cos_ha >= 1.0) return 0.0;      // Polartag
+        
+        return acos(cos_ha);
+    };
+    
+    // Stundenwinkel berechnen
+    double ha_sunrise = calculate_hour_angle(sunrise_angle);
+    double ha_civil = calculate_hour_angle(civil_twilight);
+    
+    // Umrechnung in Stunden
+    double ha_sunrise_hours = ha_sunrise * TODEG / 15.0;
+    double ha_civil_hours = ha_civil * TODEG / 15.0;
+    
+    // Lokale Sonnenzeit für Ereignisse
+    double solar_noon = 12.0 - (loc.longitude / 15.0) - eot_hours;
+    
+    // UTC-Zeiten für Ereignisse
+    double sunrise_utc = solar_noon - ha_sunrise_hours;
+    double sunset_utc = solar_noon + ha_sunrise_hours;
+    double dawn_utc = solar_noon - ha_civil_hours;
+    double dusk_utc = solar_noon + ha_civil_hours;
+    
+    // Auf lokale Zeit umrechnen und normalisieren
+    auto normalize_time = [](double time) -> double {
+        while (time < 0) time += 24.0;
+        while (time >= 24.0) time -= 24.0;
+        return time / 24.0;
+    };
+    
+    double sunrise_local = normalize_time(sunrise_utc + loc.timezone);
+    double sunset_local = normalize_time(sunset_utc + loc.timezone);
+    double dawn_local = normalize_time(dawn_utc + loc.timezone);
+    double dusk_local = normalize_time(dusk_utc + loc.timezone);
+    
+    return {sunrise_local, sunset_local, dawn_local, dusk_local};
+}
 
-  // calculation of sunrise based on
-  // https://en.wikipedia.org/wiki/Sunrise_equation
-  // current julian day
-  double n = jd - 2451545 + 0.0008;
-  cout << "n " << n << endl;
-  // mean solar noon
-  double js = low / 360 + n;
-  cout << "js " << js << endl;
-  // mean anomaly
-  double ma = fmod((357.5291 + 0.98560028 * js), 360);
-  cout << "ma " << ma << endl;
-  // equation of the center
-  double c = 1.9148 * sin(ma * torad) + 0.02 * sin(2 * ma * torad) + 0.0003 * sin(3 * ma * torad);
-  cout << "c " << c << endl;
-  // ecliptic longitude
-  double l = fmod((ma + c + 180 + 102.9372), 360);
-  cout << "l " << l << endl;
-  // solar transit - it seems they have forgotten the 2451545.5 on the wikipedia
-  // page. or i did not understand correctly.
-  double jt = 2451545.5 + js + 0.0053 * sin(ma * torad) - 0.0069 * sin(2 * l * torad);
-  cout << "jt " << jt << endl;
-  // declination of the sun
-  double de = asin(sin(l * torad) * sin(23.44 * torad)) * todeg;
-  cout << "de " << de << endl;
-  // hour angle
-  double w = acos((sin(-0.83 * torad) - sin(lam * torad) * sin(de * torad)) / (cos(lam * torad) * cos(de * torad))) * todeg;
-  cout << "w " << w << endl;
+Location get_location_from_env() {
+    const char* env_location = getenv("TERRARIUM_LOCATION");
+    
+    if (env_location != nullptr) {
+        string location_str(env_location);
+        if (location_str == "MadagascarEquivalent" || location_str == "MadagascarEquivalent" || location_str == "2") {
+            cout << "Using MadagascarEquivalent location from environment variable" << endl;
+            return LOCATIONS[1];
+        }
+    }
+    
+    // Default to Velpke
+    cout << "Using default location: Velpke" << endl;
+    cout << "Set TERRARIUM_LOCATION environment variable to 'MadagascarEquivalent' to change location" << endl;
+    return LOCATIONS[0];
+}
 
-  double jset = jt + w / 360;
-  double jrise = jt - w / 360;
-  cout << "jset " << jset << endl;
-  cout << "jrise " << jrise << endl;
-
-  struct julian cjt = {jrise, jset};
-
-  return cjt;
+void cleanup() {
+    cout << "Performing cleanup..." << endl;
+    // Turn off all lights on shutdown
+    write_to_file("/dev/shm/pin_8", "0");
+    write_to_file("/dev/shm/pin_2", "0");
+    
+    // Turn off pi-blaster outputs
+    ofstream filehandler("/dev/pi-blaster");
+    if (filehandler.is_open()) {
+        filehandler << "14=0" << endl;
+        filehandler << "15=0" << endl;
+        filehandler << "18=0" << endl;
+    }
+    
+    cout << "Cleanup completed. Goodbye!" << endl;
 }
 
 int main() {
-  cout << "starting up..." << endl;
-  time_t now = time(0);
-  struct tm *nowt;
-  int nowd = gmtime(&now)->tm_yday;
-  int curd = nowd + 1;
-  struct julian jt;
+    cout << "Starting Terrarium Light Daemon ..." << endl;
+    
+    // Setup signal handlers for graceful shutdown
+    struct sigaction sa;
+    memset(&sa, 0, sizeof(sa));
+    sa.sa_handler = signal_handler;
+    sigaction(SIGTERM, &sa, NULL);
+    sigaction(SIGINT, &sa, NULL);
+    
+    // Get location from environment variable
+    Location current_location = get_location_from_env();
+    cout << "Location: " << current_location.name << endl;
+    cout << "Latitude: " << current_location.latitude << ", Longitude: " << current_location.longitude;
+    cout << ", Timezone: UTC" << (current_location.timezone >= 0 ? "+" : "") << current_location.timezone;
+    cout << ", Elevation: " << current_location.elevation << "m" << endl;
 
-  double sunrise;
-  double sunset;
-  double lightson=0;
-  double lightsoff=0;
-  double dawn=0;
-  double dusk=0;
-
-  // better float precision for debugging purposes
-  std::cout.setf(std::ios_base::fixed, std::ios_base::floatfield);
-  std::cout.precision(10);
-
-  // here is the main loop, that just loops over and over again
-  while (true) {
-    now = time(0);
-    nowt = localtime(&now);
-    nowd = nowt->tm_yday;
-    if (nowd != curd) {
-      cout << "a new day" << endl;
-      // the day changed, so this is a new day
-      curd = nowd;
-      jt = calcjtimes(now);
-
-      // now we have the correct times. first skip the acutal
-      // date because i only need the times. as julian day .5 is
-      // 00:00 gmt we have to subtract .5 so we get the correct
-      // values for hour, minute and second.
-      // they will be shifted so
-      // the day of the terrarium matches the day of the owners and
-      // also i want to have a nice dawn and dusk.
-      // the dawn and dusk will spread evenly before and after
-      // the actal sunrise
-
-      sunrise = (jt.jrise - .5 - int(jt.jrise - .5)) + mstep * 60;
-      sunset = (jt.jset - .5 - int(jt.jset - .5)) + mstep * 60;
-      lightson = sunrise + riseduration / 2;
-      lightsoff = sunset - riseduration / 2;
-      dawn = sunrise - riseduration / 2;
-      dusk = sunset + riseduration / 2;
-
-      // write everything to the log
-      cout << "name        julian time | utc" << endl;
-      cout << "sunrise:    " << sunrise << "|" << j2h(sunrise) << endl;
-      cout << "sunset:     " << sunset << "|" << j2h(sunset) << endl;
-      cout << "lights on:  " << lightson << "|" << j2h(lightson) << endl;
-      cout << "lights off: " << lightsoff << "|" << j2h(lightsoff) << endl;
-      cout << "dawn start: " << dawn << "|" << j2h(dawn) << endl;
-      cout << "dusk stop:  " << dusk << "|" << j2h(dusk) << endl;
-
-      // write everything to a file
-      ofstream filehandler;
-      string filename = "/dev/shm/terrarium_times";
-      filehandler.open(filename.c_str());
-      if (filehandler.is_open()) {
-        filehandler << "sunrise " << sunrise << " " << j2h(sunrise) << endl;
-        filehandler << "sunset " << sunset << " " << j2h(sunset) << endl;
-        filehandler << "start_dawn " << dawn << " " << j2h(dawn) << endl;
-        filehandler << "start_daylight " << lightson << " " << j2h(lightson) << endl;
-        filehandler << "stop_daylight " << lightsoff << " " << j2h(lightsoff) << endl;
-        filehandler << "stop_dusk " << dusk << " " << j2h(dusk) << endl;
-        filehandler.close();
-      }
+    time_t now = time(0);
+    if (now == -1) {
+        cerr << "ERROR: Could not get current time" << endl;
+        return 1;
     }
-    // set the lights
-    setlights(nowt->tm_hour * hstep + nowt->tm_min * mstep + nowt->tm_sec * sstep, dawn, lightson, lightsoff, dusk);
-    // sleep for 5 seconds
-    usleep(5000000);
-  }
-  // this will never be reached, but anyway
-  return 0;
+
+    struct tm* nowt = localtime(&now);
+    if (!nowt) {
+        cerr << "ERROR: Could not convert local time" << endl;
+        return 1;
+    }
+
+    int nowd = nowt->tm_yday;
+    int curd = nowd + 1; // Force calculation on first run
+
+    SunTimes sun_times;
+    double lightson, lightsoff;
+
+    // Set output precision
+    cout.setf(ios_base::fixed, ios_base::floatfield);
+    cout.precision(6);
+
+    // Main loop
+    while (!shutdown_flag) {
+        now = time(0);
+        nowt = localtime(&now);
+        if (!nowt) {
+            cerr << "ERROR: Could not convert local time in main loop" << endl;
+            usleep(5000000);
+            continue;
+        }
+
+        nowd = nowt->tm_yday;
+        if (nowd != curd) {
+            cout << "New day detected for " << current_location.name << endl;
+            curd = nowd;
+            
+            sun_times = calculate_sun_times_nrel(now, current_location);
+
+            // Calculate light times
+            lightson = sun_times.sunrise + RISEDURATION / 2;
+            lightsoff = sun_times.sunset - RISEDURATION / 2;
+
+            // Log times
+            cout << "=== Daily Sun Times ===" << endl;
+            cout << "Civil dawn:    " << j2h(sun_times.dawn) << endl;
+            cout << "Sunrise:       " << j2h(sun_times.sunrise) << endl;
+            cout << "Lights on:     " << j2h(lightson) << endl;
+            cout << "Lights off:    " << j2h(lightsoff) << endl;
+            cout << "Sunset:        " << j2h(sun_times.sunset) << endl;
+            cout << "Civil dusk:    " << j2h(sun_times.dusk) << endl;
+            cout << "=======================" << endl;
+
+            // Write times to file
+            ofstream filehandler("/dev/shm/terrarium_times");
+            if (filehandler.is_open()) {
+                filehandler << "civil_dawn " << sun_times.dawn << " " << j2h(sun_times.dawn) << endl;
+                filehandler << "sunrise " << sun_times.sunrise << " " << j2h(sun_times.sunrise) << endl;
+                filehandler << "lights_on " << lightson << " " << j2h(lightson) << endl;
+                filehandler << "lights_off " << lightsoff << " " << j2h(lightsoff) << endl;
+                filehandler << "sunset " << sun_times.sunset << " " << j2h(sun_times.sunset) << endl;
+                filehandler << "civil_dusk " << sun_times.dusk << " " << j2h(sun_times.dusk) << endl;
+            } else {
+                cerr << "ERROR: Could not write to /dev/shm/terrarium_times" << endl;
+            }
+        }
+
+        // Set lights based on current time
+        double dayhour = nowt->tm_hour * HSTEP + nowt->tm_min * MSTEP + nowt->tm_sec * SSTEP;
+        setlights(dayhour, sun_times.dawn, lightson, lightsoff, sun_times.dusk);
+        
+        // Sleep with interruption check
+        for (int i = 0; i < 50 && !shutdown_flag; i++) {
+            usleep(100000); // 100ms
+        }
+    }
+
+    // Graceful shutdown
+    cleanup();
+    return 0;
 }
