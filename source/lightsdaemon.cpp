@@ -110,7 +110,11 @@ void setlights(double dayhour, double dawn, double rise, double set, double dusk
     blue = max(0.0, min(1.0, blue));
 
     // Write values to system
+    // links
     write_to_file("/dev/shm/pin_8", to_string(static_cast<int>(lights)));
+    // mitte
+    write_to_file("/dev/shm/pin_0", to_string(static_cast<int>(lights)));
+    // rechts
     write_to_file("/dev/shm/pin_2", to_string(static_cast<int>(lights)));
 
     // Write to pi-blaster if needed
@@ -275,6 +279,7 @@ void cleanup() {
     cout << "Performing cleanup..." << endl;
     // Turn off all lights on shutdown
     write_to_file("/dev/shm/pin_8", "0");
+    write_to_file("/dev/shm/pin_0", "0");
     write_to_file("/dev/shm/pin_2", "0");
     
     // Turn off pi-blaster outputs
